@@ -26,7 +26,8 @@
 
           <span class="my-2"> Server health: </span>
           <div v-if="!error" class="m-2 fw-bold"
-               :class="health.status === 'OK' ? 'green' :(health.status === 'ERROR' ? 'red' : 'orange')"> {{ health.status }}
+               :class="health.status === 'OK' ? 'green' :(health.status === 'ERROR' ? 'red' : 'orange')">
+            {{ health.status }}
             {{ health.status === 'OK' ? '😁' : (health.status === 'ERROR' ? '😫' : '😐') }}
           </div>
 
@@ -134,7 +135,7 @@
       <br/>
 
 
-      <div class=" px-3 ">Global Thresholds</div>
+      <div class=" px-3 ">Global Parameters</div>
       <table class="common-table" style="" v-if="health.networks">
         <thead style="font-weight: bold;">
         <td>
@@ -149,9 +150,12 @@
         <td>
           Errors Threshold
         </td>
+        <td>
+          Subscription Change Detection
+        </td>
         </thead>
         <tbody>
-        <tr v-for="network in Object.values(health.networks)" :key="network.id">
+        <tr >
 
           <td>
             {{ [health.loopSlowThresholdMillis, 'milliseconds'] | duration('humanize') }}
@@ -164,6 +168,9 @@
           </td>
           <td style="text-align: right;">
             {{ health.loopErrorsThreshold }}
+          </td>
+          <td style="text-align: right;">
+            {{ [health.subscriptionModificationGraceMillis, 'milliseconds'] | duration('humanize') }}
           </td>
 
         </tr>
