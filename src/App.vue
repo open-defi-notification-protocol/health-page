@@ -26,8 +26,8 @@
 
           <span class="my-2"> Server health: </span>
           <div v-if="!error" class="m-2 fw-bold"
-               :class="health.status === 'OK' ? 'green' : 'red'"> {{ health.status }}
-            {{ health.status === 'OK' ? '😁' : '😫' }}
+               :class="health.status === 'OK' ? 'green' :(health.status === 'ERROR' ? 'red' : 'orange')"> {{ health.status }}
+            {{ health.status === 'OK' ? '😁' : (health.status === 'ERROR' ? '😫' : '😐') }}
           </div>
 
           <div v-else class="m-2 fw-bold red"> {{ error }} 😫
@@ -246,7 +246,7 @@ export default {
 
       try {
 
-        const response = await fetch('https://open-defi-notifications-detect.herokuapp.com/health', {
+        const response = await fetch('http://localhost:56744/health', {
           method: 'GET'
         });
 
@@ -312,7 +312,7 @@ body {
 }
 
 .logo {
-  opacity: 0.6;
+  opacity: 0.2;
   display: flex;
   flex-direction: column;
   position: fixed;
