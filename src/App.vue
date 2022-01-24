@@ -246,7 +246,7 @@ export default {
 
       try {
 
-        const response = await fetch('http://localhost:56744/health', {
+        const response = await fetch('https://open-defi-notifications-detect.herokuapp.com/health', {
           method: 'GET'
         });
 
