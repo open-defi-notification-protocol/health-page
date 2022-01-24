@@ -6,49 +6,174 @@
         src="https://static.wixstatic.com/media/36247c_17923c17ce6642fa9ab5b64445d61b47~mv2.jpg/v1/fill/w_1400,h_400,al_c/36247c_17923c17ce6642fa9ab5b64445d61b47~mv2.jpg"
         class="background"/>
 
-    <img src="https://avatars.githubusercontent.com/u/88712094?s=200&v=4" class="logo"/>
+    <div class="logo">
 
-    <div style="display: flex; flex-direction: column;">
+      <img
+          src="https://play-lh.googleusercontent.com/1bxBSz9Aj_TESC9mUjs7c365PNvfHm8TUA8L1iMNOxcQpXi2zhUAsqQyhc4VEAKr938U=s360-rw"/>
+      <h1 class="my-3">DeFi Notifications</h1>
+      <img src="./assets/logo.svg"/>
 
-      <h3 class="p-3 title">
+    </div>
+
+    <div style="display: flex; flex-direction: column;" v-if="health">
+
+      <h3 class="px-3 pt-3 title">
         Open DeFi Notifications Health
       </h3>
       <div style="display: flex; flex-direction: column" class=" p-3 ">
 
-        <div style="display: flex; " >
+        <div style="display: flex; ">
 
           <span class="my-2"> Server health: </span>
-          <div class="m-2 fw-bold"
-               :style="health.status === 'OK' ? 'color: green;' : 'color: red;'"> {{ health.status }}
+          <div v-if="!error" class="m-2 fw-bold"
+               :class="health.status === 'OK' ? 'green' : 'red'"> {{ health.status }}
+            {{ health.status === 'OK' ? '😁' : '😫' }}
+          </div>
+
+          <div v-else class="m-2 fw-bold red"> {{ error }} 😫
           </div>
 
           <span class="my-2"> Server uptime: </span>
           <div class="m-2 fw-bold"> {{ [health.uptime, 'seconds'] | duration('humanize') }}</div>
 
-          <span class="my-2"> Stuck Threshold: </span>
-          <div class="m-2 fw-bold"> {{ [health.loopStuckThresholdMillis, 'milliseconds'] | duration('humanize') }}</div>
-
-        </div>
-
-        <div style="display: flex;">
-
-          <span class="my-2"> Slow Threshold: </span>
-          <div class="m-2 fw-bold"> {{ [health.loopSlowThresholdMillis, 'milliseconds'] | duration('humanize') }}</div>
-
-          <span class="my-2"> Unsuccessful Threshold: </span>
-          <div class="m-2 fw-bold"> {{
-              [health.loopUnsuccessfulThresholdMillis, 'milliseconds'] | duration('humanize')
-            }}
-          </div>
-
-          <span class="my-2"> Errors Threshold: </span>
-          <div class="m-2 fw-bold"> {{ health.loopErrorsThreshold }}</div>
-
         </div>
 
       </div>
 
-      <div class=" px-3 ">Networks detector parameters</div>
+      <div v-if="health.errors.length > 0">
+
+        <div class=" px-3 ">Errors</div>
+        <table class="common-table" style="">
+          <thead style="font-weight: bold;">
+          <td>
+            Type
+          </td>
+          <td>
+            Loop
+          </td>
+          <td>
+            info
+          </td>
+          </thead>
+          <tbody>
+          <tr v-for="error of health.errors" :key="error"
+              :class="error.level > 0 ? (error.level > 1 ? 'red' : 'orange') :'' ">
+
+            <td>
+              {{ error.type }}
+            </td>
+            <td>
+              {{ error.loop }}
+            </td>
+            <td>
+              {{ error.info }}
+            </td>
+
+          </tr>
+
+          </tbody>
+
+        </table>
+
+        <br/>
+
+      </div>
+
+      <div class=" px-3 ">Loops Status</div>
+      <table class="common-table" style="" v-if="health.loops">
+        <thead style="font-weight: bold;">
+        <td>
+          Loop
+        </td>
+        <td>
+          State
+        </td>
+        <td>
+          Error count
+        </td>
+        <td>
+          Last Completed
+        </td>
+        <td>
+          Count
+        </td>
+        <td>
+          Elapsed (ms)
+        </td>
+        </thead>
+        <tbody>
+        <tr v-for="key in Object.keys(health.loops)" :key="key">
+
+          <td>
+            {{ key }}
+          </td>
+          <td style="">
+            {{ health.loops[key].started === 'idle' ? 'idle' : 'running' }}
+          </td>
+          <td style="text-align: right;"
+              :class="getColorClass(health.loops[key].errors, health.loopErrorsThreshold)">
+            {{ health.loops[key].errors }}
+          </td>
+          <td style="text-align: right;">
+            {{ new Date(health.loops[key].lastCompleted).toLocaleString() }}
+          </td>
+          <td style="text-align: right;">
+            {{ health.loops[key].count }}
+          </td>
+          <td style="text-align: right;"
+              :class="getColorClass(health.loops[key].elapsedTimeMillis, health.loopSlowThresholdMillis )">
+            {{ health.loops[key].elapsedTimeMillis }}
+          </td>
+
+        </tr>
+
+        </tbody>
+
+      </table>
+
+      <br/>
+
+
+      <div class=" px-3 ">Global Thresholds</div>
+      <table class="common-table" style="" v-if="health.networks">
+        <thead style="font-weight: bold;">
+        <td>
+          Slow Threshold
+        </td>
+        <td>
+          Stuck Threshold
+        </td>
+        <td>
+          Unsuccessful Threshold
+        </td>
+        <td>
+          Errors Threshold
+        </td>
+        </thead>
+        <tbody>
+        <tr v-for="network in Object.values(health.networks)" :key="network.id">
+
+          <td>
+            {{ [health.loopSlowThresholdMillis, 'milliseconds'] | duration('humanize') }}
+          </td>
+          <td style="">
+            {{ [health.loopStuckThresholdMillis, 'milliseconds'] | duration('humanize') }}
+          </td>
+          <td style="text-align: right;">
+            {{ [health.loopUnsuccessfulThresholdMillis, 'milliseconds'] | duration('humanize') }}
+          </td>
+          <td style="text-align: right;">
+            {{ health.loopErrorsThreshold }}
+          </td>
+
+        </tr>
+
+        </tbody>
+
+      </table>
+
+      <br/>
+      <div class=" px-3 ">Networks Parameters</div>
       <table class="common-table" style="" v-if="health.networks">
         <thead style="font-weight: bold;">
         <td>
@@ -86,72 +211,11 @@
 
       </table>
 
-      <br/>
-      <div class=" px-3 ">Loops</div>
-      <table class="common-table" style="" v-if="health.loops">
-        <thead style="font-weight: bold;">
-        <td>
-          Loop
-        </td>
-        <td>
-          State
-        </td>
-        <td>
-          Error count
-        </td>
-        <td>
-          Last Completed
-        </td>
-        <td>
-          Count
-        </td>
-        <td>
-          Elapsed (ms)
-        </td>
-        </thead>
-        <tbody>
-        <tr v-for="key in Object.keys(health.loops)" :key="key">
+    </div>
 
-          <td>
-            {{ key }}
-          </td>
-          <td style="">
-            {{ health.loops[key].started === 'idle' ? 'idle' : 'running' }}
-          </td>
-          <td style="text-align: right;">
-            {{ health.loops[key].errors }}
-          </td>
-          <td style="text-align: right;">
-            {{ new Date(health.loops[key].lastCompleted).toLocaleString() }}
-          </td>
-          <td style="text-align: right;">
-            {{ health.loops[key].count }}
-          </td>
-          <td style="text-align: right;">
-            {{ health.loops[key].elapsedTimeMillis }}
-          </td>
-
-        </tr>
-
-        </tbody>
-
-      </table>
-
-      <br/>
-      <div class=" px-3 ">Errors</div>
-      <table class="common-table" style="" v-if="health.errors">
-        <tbody>
-        <tr v-for="error of health.errors" :key="error">
-
-          <td>
-            {{ error }}
-          </td>
-
-        </tr>
-
-        </tbody>
-
-      </table>
+    <div v-if="error" class="justify-content-center flex-column d-flex align-items-center" style="height: 100vh;">
+      <h1>😫</h1>
+      <h5>{{ error }}</h5>
     </div>
 
     <div class="loading" v-if="isLoading">
@@ -170,7 +234,8 @@ export default {
 
   data() {
     return {
-      health: {},
+      health: null,
+      error: null,
       isLoading: true
     }
   },
@@ -179,19 +244,37 @@ export default {
 
     setInterval(async () => {
 
-      const response = await fetch('http://localhost:61005/health', {
-        method: 'GET'
-      });
+      try {
 
-      this.health = (await (response.json()))
+        const response = await fetch('https://open-defi-notifications-detect.herokuapp.com/health', {
+          method: 'GET'
+        });
+
+        this.health = (await (response.json()))
+
+        this.error = null
+
+      } catch (e) {
+
+        this.error = e
+
+      }
 
       this.isLoading = false
 
-    }, 500)
+    }, 1000)
 
   },
   computed: {},
-  methods: {}
+  methods: {
+    getColorClass(value, threshold) {
+
+      let ratio = value / threshold
+
+      return ratio >= 1 ? 'red' : (ratio < 0.2 ? 'green' : 'orange')
+
+    }
+  }
 
 }
 </script>
@@ -215,10 +298,6 @@ body {
 
 }
 
-.winner-box {
-  color: #03fcf5;
-}
-
 .common-table td {
 
   padding: 2px 15px;
@@ -232,20 +311,14 @@ body {
 
 }
 
-.fireworks-canvas {
-  position: fixed;
-  opacity: 0.7;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
 .logo {
+  opacity: 0.6;
+  display: flex;
+  flex-direction: column;
   position: fixed;
   right: 15vw;
-  top: 50vh;
+  top: 20vh;
+  align-items: center;
 }
 
 .loading {
@@ -269,5 +342,18 @@ body {
   position: fixed;
   bottom: 0;
   height: 100%;
+}
+
+.orange {
+  color: orange;
+}
+
+
+.red {
+  color: red;
+}
+
+.green {
+  color: green;
 }
 </style>
