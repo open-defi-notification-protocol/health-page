@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :style="!modeProduction ? 'color: yellow !important;' : ''">
 
     <img
         src="https://static.wixstatic.com/media/36247c_17923c17ce6642fa9ab5b64445d61b47~mv2.jpg/v1/fill/w_1400,h_400,al_c/36247c_17923c17ce6642fa9ab5b64445d61b47~mv2.jpg"
@@ -37,7 +37,18 @@
           <span class="my-2"> Server uptime: </span>
           <div class="m-2 fw-bold"> {{ [health.uptime, 'seconds'] | duration('humanize') }}</div>
 
-          <a class="m-2" href="https://addons-sso.heroku.com/apps/50eb195f-1036-4b99-a124-8653f6d07123/addons/f9f455a8-2cd4-4a43-954d-82d9f90f2d2b" target="_blank"> Papertrail </a>
+          <a class="m-2"
+             :href="modeProduction ? 'https://addons-sso.heroku.com/apps/50eb195f-1036-4b99-a124-8653f6d07123/addons/f9f455a8-2cd4-4a43-954d-82d9f90f2d2b' : 'https://addons-sso.heroku.com/apps/de52ad2a-132b-4aee-b9bc-827c32c92272/addons/ebab4863-ea0d-47e4-a92a-1ff525df3a16'"
+             target="_blank"> Papertrail </a>
+
+          <a class="m-2"
+             :href="healthEndpoint"
+             target="_blank"> RAW </a>
+
+
+          <button @click="modeProduction = !modeProduction" class="px-2 mx-3">
+            {{ modeProduction ? 'Production Env' : 'Development Env' }}
+          </button>
 
         </div>
 
@@ -127,7 +138,9 @@
             {{ health.loops[key].count }}
           </td>
           <td style="text-align: right;">
-            {{ health.loops[key].clipboard.subscriptions && Object.keys(health.loops[key].clipboard.subscriptions).length }}
+            {{
+              health.loops[key].clipboard.subscriptions && Object.keys(health.loops[key].clipboard.subscriptions).length
+            }}
           </td>
           <td style="text-align: right;"
               :class="getColorClass(health.loops[key].elapsedTimeMillis, health.loopSlowThresholdMillis )">
@@ -161,9 +174,15 @@
         <td>
           Subscription Change Detection
         </td>
+        <td>
+          onBlocks execution Timeout (ms)
+        </td>
+        <td>
+          Get Block Timeout (ms)
+        </td>
         </thead>
         <tbody>
-        <tr >
+        <tr>
 
           <td>
             {{ [health.loopSlowThresholdMillis, 'milliseconds'] | duration('humanize') }}
@@ -179,6 +198,12 @@
           </td>
           <td style="text-align: right;">
             {{ [health.subscriptionModificationGraceMillis, 'milliseconds'] | duration('humanize') }}
+          </td>
+          <td style="text-align: right;">
+            {{ health.onBlocksRequestTimeout }}
+          </td>
+          <td style="text-align: right;">
+            {{ health.getBlockRequestTimeout }}
           </td>
 
         </tr>
@@ -251,6 +276,7 @@ export default {
     return {
       health: null,
       error: null,
+      modeProduction: true,
       isLoading: true
     }
   },
@@ -261,7 +287,7 @@ export default {
 
       try {
 
-        const response = await fetch('https://open-defi-notifications-detect.herokuapp.com/health', {
+        const response = await fetch(this.healthEndpoint, {
           method: 'GET'
         });
 
@@ -280,7 +306,15 @@ export default {
     }, 1000)
 
   },
-  computed: {},
+  computed: {
+
+    healthEndpoint() {
+
+      return this.modeProduction ? 'https://open-defi-notifications-detect.herokuapp.com/health' : 'https://defi-notifications-detect-test.herokuapp.com/health'
+
+    }
+
+  },
   methods: {
     getColorClass(value, threshold) {
 
