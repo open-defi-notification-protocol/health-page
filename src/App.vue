@@ -37,6 +37,8 @@
           <span class="my-2"> Server uptime: </span>
           <div class="m-2 fw-bold"> {{ [health.uptime, 'seconds'] | duration('humanize') }}</div>
 
+          <a class="m-2" href="https://addons-sso.heroku.com/apps/50eb195f-1036-4b99-a124-8653f6d07123/addons/f9f455a8-2cd4-4a43-954d-82d9f90f2d2b" target="_blank"> Papertrail </a>
+
         </div>
 
       </div>
