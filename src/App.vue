@@ -98,7 +98,10 @@
           Last Completed
         </td>
         <td>
-          Count
+          Execution Count
+        </td>
+        <td>
+          Subscriptions
         </td>
         <td>
           Elapsed (ms)
@@ -122,6 +125,9 @@
           </td>
           <td style="text-align: right;">
             {{ health.loops[key].count }}
+          </td>
+          <td style="text-align: right;">
+            {{ health.loops[key].clipboard.subscriptions && Object.keys(health.loops[key].clipboard.subscriptions).length }}
           </td>
           <td style="text-align: right;"
               :class="getColorClass(health.loops[key].elapsedTimeMillis, health.loopSlowThresholdMillis )">
@@ -302,7 +308,7 @@ body {
 .common-table {
 
   background: #222;
-  width: 50vw;
+  width: 60vw;
   margin: 10px 20px;
 
 }
@@ -325,7 +331,7 @@ body {
   display: flex;
   flex-direction: column;
   position: fixed;
-  right: 15vw;
+  right: 10vw;
   top: 20vh;
   align-items: center;
 }
