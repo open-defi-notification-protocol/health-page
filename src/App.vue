@@ -22,30 +22,37 @@
       </h3>
       <div style="display: flex; flex-direction: column" class=" p-3 ">
 
-        <div style="display: flex; ">
+        <div class="d-flex align-items-center">
 
-          <span class="my-2"> Server health: </span>
-          <div v-if="!error" class="m-2 fw-bold"
+          <div class="global-health-title"> Server health:</div>
+          <div v-if="!error" class=" fw-bold "
                :class="health.status === 'OK' ? 'green' :(health.status === 'ERROR' ? 'red' : 'orange')">
             {{ health.status }}
             {{ health.status === 'OK' ? '😁' : (health.status === 'ERROR' ? '😫' : '😐') }}
           </div>
 
-          <div v-else class="m-2 fw-bold red"> {{ error }} 😫
+          <div v-else class=" fw-bold red"> {{ error }} 😫
           </div>
 
-          <span class="my-2"> Server uptime: </span>
-          <div class="m-2 fw-bold"> {{ [health.uptime, 'seconds'] | duration('humanize') }}</div>
+          <div class="mx-3">|</div>
+          <span class=" global-health-title"> Server uptime: </span>
+          <div class=" fw-bold"> {{ [health.uptime, 'seconds'] | duration('humanize') }}</div>
 
-          <a class="m-2"
+          <div class="mx-3">|</div>
+          <div class=" global-health-title"> Heap Size:</div>
+          <div class=" fw-bold" v-if="health.heapUsedMB"> {{ health.heapUsedMB.toFixed(1) }}Mb</div>
+
+          <div class="mx-3">|</div>
+          <a class=""
              :href="modeProduction ? 'https://addons-sso.heroku.com/apps/50eb195f-1036-4b99-a124-8653f6d07123/addons/f9f455a8-2cd4-4a43-954d-82d9f90f2d2b' : 'https://addons-sso.heroku.com/apps/de52ad2a-132b-4aee-b9bc-827c32c92272/addons/ebab4863-ea0d-47e4-a92a-1ff525df3a16'"
              target="_blank"> Papertrail </a>
 
-          <a class="m-2"
+          <div class="mx-3">|</div>
+          <a class=""
              :href="healthEndpoint"
              target="_blank"> RAW </a>
 
-
+          <div class="mx-3">|</div>
           <button @click="modeProduction = !modeProduction" class="px-2 mx-3">
             {{ modeProduction ? 'Production Env' : 'Development Env' }}
           </button>
@@ -397,6 +404,9 @@ body {
   color: orange;
 }
 
+.global-health-title {
+  margin-right: 0.3rem;
+}
 
 .red {
   color: red;
