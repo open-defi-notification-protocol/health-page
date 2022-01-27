@@ -258,6 +258,32 @@
 
       </table>
 
+      <table class="common-table" style="" v-if="health.networks">
+        <thead style="font-weight: bold;">
+        <td>
+          Endpoint
+        </td>
+        <td>
+          Logger Endpoint
+        </td>
+        </thead>
+
+        <tbody>
+        <tr>
+
+          <td>
+            {{ health.endpoint }}
+          </td>
+          <td style="">
+            {{ health.loggerEndpoint }}
+          </td>
+
+        </tr>
+
+        </tbody>
+
+      </table>
+
     </div>
 
     <div v-if="error" class="justify-content-center flex-column d-flex align-items-center" style="height: 100vh;">
