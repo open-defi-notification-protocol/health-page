@@ -156,6 +156,28 @@
 
         </tr>
 
+        <tr>
+
+          <td>
+            <b>Total</b>
+          </td>
+          <td style="">
+          </td>
+          <td style="text-align: right;">
+            <b>{{ totalErrors }}</b>
+          </td>
+          <td style="text-align: right;">
+          </td>
+          <td style="text-align: right;">
+          </td>
+          <td style="text-align: right;">
+            <b>{{ totalSubscriptions }}</b>
+          </td>
+          <td>
+          </td>
+
+        </tr>
+
         </tbody>
 
       </table>
@@ -316,7 +338,7 @@ export default {
 
   async mounted() {
 
-    setInterval(async () => {
+    const loaderFunction = async () => {
 
       try {
 
@@ -336,7 +358,11 @@ export default {
 
       this.isLoading = false
 
-    }, 1000)
+    }
+
+    await loaderFunction()
+
+    setInterval(loaderFunction, 5000)
 
   },
   computed: {
@@ -344,6 +370,48 @@ export default {
     healthEndpoint() {
 
       return this.modeProduction ? 'https://open-defi-notifications-detect.herokuapp.com/health' : 'https://defi-notifications-detect-test.herokuapp.com/health'
+
+    },
+    totalSubscriptions() {
+
+      let totalSubscriptions = 0
+
+      if (this.health && this.health.loops) {
+
+        for (const key in this.health.loops) {
+
+          if (this.health.loops[key].clipboard.subscriptions) {
+
+            totalSubscriptions += Object.keys(this.health.loops[key].clipboard.subscriptions).length
+
+          }
+
+        }
+
+      }
+
+      return totalSubscriptions
+
+    },
+    totalErrors() {
+
+      let totalErrors = 0
+
+      if (this.health && this.health.loops) {
+
+        for (const key in this.health.loops) {
+
+          if (this.health.loops[key].errors) {
+
+            totalErrors += this.health.loops[key].errors.length
+
+          }
+
+        }
+
+      }
+
+      return totalErrors
 
     }
 
