@@ -185,6 +185,35 @@
       <br/>
 
 
+      <div class=" px-3 ">Project Statistics</div>
+      <table class="common-table" style="width: 20%;" v-if="subscriptionsByProjects">
+        <thead style="font-weight: bold;">
+        <td>
+          Project
+        </td>
+        <td>
+          Subscription Count
+        </td>
+        </thead>
+        <tbody>
+        <tr v-for="key in Object.keys(subscriptionsByProjects)" :key="key">
+
+          <td>
+            {{ key }}
+          </td>
+          <td style="text-align: right;">
+            {{ subscriptionsByProjects[key].length }}
+          </td>
+
+        </tr>
+
+        </tbody>
+
+      </table>
+
+      <br/>
+
+
       <div class=" px-3 ">Global Parameters</div>
       <table class="common-table" style="" v-if="health.networks">
         <thead style="font-weight: bold;">
@@ -370,6 +399,37 @@ export default {
     healthEndpoint() {
 
       return this.modeProduction ? 'https://open-defi-notifications-detect.herokuapp.com/health' : 'https://defi-notifications-detect-test.herokuapp.com/health'
+
+    },
+    subscriptionsByProjects() {
+
+      const subscriptionsByProjects = {}
+
+      if (this.health && this.health.loops) {
+
+        for (const key in this.health.loops) {
+
+          const subscriptions = this.health.loops[key].clipboard.subscriptions;
+
+          if (subscriptions) {
+
+            for (const sub of Object.values(subscriptions)) {
+
+              let subscriptionsByProject = subscriptionsByProjects[sub.projectId]
+
+              subscriptionsByProjects[sub.projectId] = subscriptionsByProject = subscriptionsByProject || []
+
+              subscriptionsByProject.push(sub)
+
+            }
+
+          }
+
+        }
+
+      }
+
+      return subscriptionsByProjects
 
     },
     totalSubscriptions() {
