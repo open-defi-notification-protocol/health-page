@@ -186,7 +186,7 @@
 
 
       <div class=" px-3 ">Project Statistics</div>
-      <table class="common-table" style="width: 20%;" v-if="subscriptionsByProjects">
+      <table class="common-table" style="width: 20%;" v-if="projectsStatistics">
         <thead style="font-weight: bold;">
         <td>
           Project
@@ -196,13 +196,13 @@
         </td>
         </thead>
         <tbody>
-        <tr v-for="key in Object.keys(subscriptionsByProjects)" :key="key">
+        <tr v-for="projectStatistics of projectsStatistics" :key="projectStatistics.projectId">
 
           <td>
-            {{ key }}
+            {{ projectStatistics.projectId }}
           </td>
           <td style="text-align: right;">
-            {{ subscriptionsByProjects[key].length }}
+            {{ projectStatistics.subs.length }}
           </td>
 
         </tr>
@@ -401,7 +401,7 @@ export default {
       return this.modeProduction ? 'https://open-defi-notifications-detect.herokuapp.com/health' : 'https://defi-notifications-detect-test.herokuapp.com/health'
 
     },
-    subscriptionsByProjects() {
+    projectsStatistics() {
 
       const subscriptionsByProjects = {}
 
@@ -417,9 +417,12 @@ export default {
 
               let subscriptionsByProject = subscriptionsByProjects[sub.projectId]
 
-              subscriptionsByProjects[sub.projectId] = subscriptionsByProject = subscriptionsByProject || []
+              subscriptionsByProjects[sub.projectId] = subscriptionsByProject = subscriptionsByProject || {
+                projectId: sub.projectId,
+                subs: []
+              }
 
-              subscriptionsByProject.push(sub)
+              subscriptionsByProject.subs.push(sub)
 
             }
 
@@ -429,7 +432,10 @@ export default {
 
       }
 
-      return subscriptionsByProjects
+      const projectsStatistics = Object.values(subscriptionsByProjects)
+      projectsStatistics.sort((a, b) => a.projectId.localeCompare(b.projectId))
+
+      return projectsStatistics
 
     },
     totalSubscriptions() {
