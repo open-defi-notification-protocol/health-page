@@ -185,35 +185,6 @@
       <br/>
 
 
-      <div class=" px-3 ">Project Statistics</div>
-      <table class="common-table" style="width: 20%;" v-if="projectsStatistics">
-        <thead style="font-weight: bold;">
-        <td>
-          Project
-        </td>
-        <td>
-          Subscription Count
-        </td>
-        </thead>
-        <tbody>
-        <tr v-for="projectStatistics of projectsStatistics" :key="projectStatistics.projectId">
-
-          <td>
-            {{ projectStatistics.projectId }}
-          </td>
-          <td style="text-align: right;">
-            {{ projectStatistics.subs.length }}
-          </td>
-
-        </tr>
-
-        </tbody>
-
-      </table>
-
-      <br/>
-
-
       <div class=" px-3 ">Global Parameters</div>
       <table class="common-table" style="" v-if="health.networks">
         <thead style="font-weight: bold;">
@@ -242,10 +213,10 @@
         <tbody>
         <tr>
 
-          <td>
+          <td style="text-align: right;">
             {{ [health.loopSlowThresholdMillis, 'milliseconds'] | duration('humanize') }}
           </td>
-          <td style="">
+          <td style="text-align: right;">
             {{ [health.loopStuckThresholdMillis, 'milliseconds'] | duration('humanize') }}
           </td>
           <td style="text-align: right;">
@@ -293,7 +264,7 @@
           <td>
             {{ network.id }}
           </td>
-          <td style="">
+          <td style="text-align: right;">
             {{ network.loopIntervalMillis }}
           </td>
           <td style="text-align: right;">
@@ -336,6 +307,37 @@
       </table>
 
     </div>
+    <br/>
+
+    <div class=" px-3 ">Project Statistics</div>
+    <table class="common-table" v-if="projectsStatistics">
+      <thead style="font-weight: bold;">
+      <td>
+        Project
+      </td>
+      <td>
+        Subscription Count
+      </td>
+      </thead>
+      <tbody>
+      <tr v-for="projectStatistics of projectsStatistics" :key="projectStatistics.projectId">
+
+        <td>
+          {{ projectStatistics.projectId }}
+        </td>
+        <td style="text-align: right;">
+          {{ projectStatistics.subs.length }}
+        </td>
+
+      </tr>
+
+      </tbody>
+
+    </table>
+
+    <br/>
+    <br/>
+
 
     <div v-if="error" class="justify-content-center flex-column d-flex align-items-center" style="height: 100vh;">
       <h1>😫</h1>
@@ -509,9 +511,13 @@ body {
 .common-table {
 
   background: #222;
-  width: 60vw;
+  width: 70vw;
   margin: 10px 20px;
 
+}
+
+.common-table tr:hover {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .common-table td {
