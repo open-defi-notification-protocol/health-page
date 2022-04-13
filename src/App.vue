@@ -43,6 +43,11 @@
           <div class=" fw-bold" v-if="health.heapUsedMB"> {{ health.heapUsedMB.toFixed(1) }}Mb</div>
 
           <div class="mx-3">|</div>
+
+          <div class=" global-health-title"> Env:</div>
+          <div class=" fw-bold" v-if="health.env"> {{ health.env }}</div>
+
+          <div class="mx-3">|</div>
           <a class=""
              :href="modeProduction ? 'https://addons-sso.heroku.com/apps/50eb195f-1036-4b99-a124-8653f6d07123/addons/f9f455a8-2cd4-4a43-954d-82d9f90f2d2b' : 'https://addons-sso.heroku.com/apps/de52ad2a-132b-4aee-b9bc-827c32c92272/addons/ebab4863-ea0d-47e4-a92a-1ff525df3a16'"
              target="_blank"> Papertrail </a>
