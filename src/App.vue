@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="!modeProduction ? 'color: yellow !important;' : ''">
+  <div :style="!modeProduction ? 'color: fuchsia !important;' : ''">
 
     <img
         src="https://static.wixstatic.com/media/36247c_17923c17ce6642fa9ab5b64445d61b47~mv2.jpg/v1/fill/w_1400,h_400,al_c/36247c_17923c17ce6642fa9ab5b64445d61b47~mv2.jpg"
@@ -58,7 +58,7 @@
              target="_blank"> RAW </a>
 
           <div class="mx-3">|</div>
-          <button @click="modeProduction = !modeProduction" class="px-2 mx-3">
+          <button @click="toggleEnv" class="px-2 mx-3">
             {{ modeProduction ? 'Production Env' : 'Development Env' }}
           </button>
 
@@ -246,6 +246,39 @@
 
       </table>
 
+
+      <table class="common-table" style="" v-if="health.networks">
+        <thead style="font-weight: bold;">
+        <td>
+          Endpoint
+        </td>
+        <td>
+          Logger Endpoint
+        </td>
+        <td>
+          Projects Commit Hash
+        </td>
+        </thead>
+
+        <tbody>
+        <tr>
+
+          <td>
+            {{ health.endpoint }}
+          </td>
+          <td style="">
+            {{ health.loggerEndpoint }}
+          </td>
+          <td style="">
+            {{ health.projectsCommitHash }}
+          </td>
+
+        </tr>
+
+        </tbody>
+
+      </table>
+
       <br/>
       <div class=" px-3 ">Networks Parameters</div>
       <table class="common-table" style="" v-if="health.networks">
@@ -277,32 +310,6 @@
           </td>
           <td style="text-align: right;">
             {{ network.executor_asyncSize }}
-          </td>
-
-        </tr>
-
-        </tbody>
-
-      </table>
-
-      <table class="common-table" style="" v-if="health.networks">
-        <thead style="font-weight: bold;">
-        <td>
-          Endpoint
-        </td>
-        <td>
-          Logger Endpoint
-        </td>
-        </thead>
-
-        <tbody>
-        <tr>
-
-          <td>
-            {{ health.endpoint }}
-          </td>
-          <td style="">
-            {{ health.loggerEndpoint }}
           </td>
 
         </tr>
@@ -490,11 +497,43 @@ export default {
 
   },
   methods: {
+
     getColorClass(value, threshold) {
 
       let ratio = value / threshold
 
       return ratio >= 1 ? 'red' : (ratio < 0.2 ? 'green' : 'orange')
+
+    },
+    toggleEnv() {
+      this.modeProduction = !this.modeProduction
+
+      this.$nextTick(() => {
+
+        this.loaderFunction()
+
+      })
+
+    },
+    async loaderFunction() {
+
+      try {
+
+        const response = await fetch(this.healthEndpoint, {
+          method: 'GET'
+        });
+
+        this.health = (await (response.json()))
+
+        this.error = null
+
+      } catch (e) {
+
+        this.error = e
+
+      }
+
+      this.isLoading = false
 
     }
   }
