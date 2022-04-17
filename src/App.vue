@@ -15,7 +15,7 @@
 
     </div>
 
-    <div style="display: flex; flex-direction: column;" v-if="health">
+    <div style="display: flex; flex-direction: column;" v-if="detectorHealth">
 
       <h3 class="px-3 pt-3 title">
         Open DeFi Notifications Health
@@ -24,28 +24,40 @@
 
         <div class="d-flex align-items-center">
 
-          <div class="global-health-title"> Server health:</div>
-          <div v-if="!error" class=" fw-bold "
-               :class="health.status === 'OK' ? 'green' :(health.status === 'ERROR' ? 'red' : 'orange')">
-            {{ health.status }}
-            {{ health.status === 'OK' ? '😁' : (health.status === 'ERROR' ? '😫' : '😐') }}
+          <div class="global-health-title"> Detector health:</div>
+          <div v-if="!detectorError" class=" fw-bold "
+               :class="detectorHealth.status === 'OK' ? 'green' :(detectorHealth.status === 'ERROR' ? 'red' : 'orange')">
+            {{ detectorHealth.status }}
+            {{ detectorHealth.status === 'OK' ? '😁' : (detectorHealth.status === 'ERROR' ? '😫' : '😐') }}
           </div>
 
-          <div v-else class=" fw-bold red"> {{ error }} 😫
+          <div v-else class=" fw-bold red"> {{ detectorError }} 😫
+          </div>
+
+          <div class="mx-3">|</div>
+
+          <div class="global-health-title"> Manager health:</div>
+          <div v-if="!managerError && managerHealth" class=" fw-bold "
+               :class="managerHealth.status === 'OK' ? 'green' :(managerHealth.status === 'ERROR' ? 'red' : 'orange')">
+            {{ managerHealth.status }}
+            {{ managerHealth.status === 'OK' ? '😁' : (managerHealth.status === 'ERROR' ? '😫' : '😐') }}
+          </div>
+
+          <div v-else class=" fw-bold red"> {{ managerError }} 😫
           </div>
 
           <div class="mx-3">|</div>
           <span class=" global-health-title"> Server uptime: </span>
-          <div class=" fw-bold"> {{ [health.uptime, 'seconds'] | duration('humanize') }}</div>
+          <div class=" fw-bold"> {{ [detectorHealth.uptime, 'seconds'] | duration('humanize') }}</div>
 
           <div class="mx-3">|</div>
           <div class=" global-health-title"> Heap Size:</div>
-          <div class=" fw-bold" v-if="health.heapUsedMB"> {{ health.heapUsedMB.toFixed(1) }}Mb</div>
+          <div class=" fw-bold" v-if="detectorHealth.heapUsedMB"> {{ detectorHealth.heapUsedMB.toFixed(1) }}Mb</div>
 
           <div class="mx-3">|</div>
 
           <div class=" global-health-title"> Env:</div>
-          <div class=" fw-bold" v-if="health.env"> {{ health.env }}</div>
+          <div class=" fw-bold" v-if="detectorHealth.env"> {{ detectorHealth.env }}</div>
 
           <div class="mx-3">|</div>
           <a class=""
@@ -66,7 +78,7 @@
 
       </div>
 
-      <div v-if="health.errors.length > 0">
+      <div v-if="detectorHealth.errors.length > 0">
 
         <div class=" px-3 ">Errors</div>
         <table class="common-table" style="">
@@ -82,7 +94,7 @@
           </td>
           </thead>
           <tbody>
-          <tr v-for="error of health.errors" :key="error"
+          <tr v-for="error of detectorHealth.errors" :key="error"
               :class="error.level > 0 ? (error.level > 1 ? 'red' : 'orange') :'' ">
 
             <td>
@@ -106,7 +118,7 @@
       </div>
 
       <div class=" px-3 ">Loops Status</div>
-      <table class="common-table" style="" v-if="health.loops">
+      <table class="common-table" style="" v-if="detectorHealth.loops">
         <thead style="font-weight: bold;">
         <td>
           Loop
@@ -131,32 +143,32 @@
         </td>
         </thead>
         <tbody>
-        <tr v-for="key in Object.keys(health.loops)" :key="key">
+        <tr v-for="key in Object.keys(detectorHealth.loops)" :key="key">
 
           <td>
             {{ key }}
           </td>
           <td style="">
-            {{ health.loops[key].started === 'idle' ? 'idle' : 'running' }}
+            {{ detectorHealth.loops[key].started === 'idle' ? 'idle' : 'running' }}
           </td>
           <td style="text-align: right;"
-              :class="getColorClass(health.loops[key].errors, health.loopErrorsThreshold)">
-            {{ health.loops[key].errors }}
+              :class="getColorClass(detectorHealth.loops[key].errors, detectorHealth.loopErrorsThreshold)">
+            {{ detectorHealth.loops[key].errors }}
           </td>
           <td style="text-align: right;">
-            {{ new Date(health.loops[key].lastCompleted).toLocaleString() }}
+            {{ new Date(detectorHealth.loops[key].lastCompleted).toLocaleString() }}
           </td>
           <td style="text-align: right;">
-            {{ health.loops[key].count }}
+            {{ detectorHealth.loops[key].count }}
           </td>
           <td style="text-align: right;">
             {{
-              health.loops[key].clipboard.subscriptions && Object.keys(health.loops[key].clipboard.subscriptions).length
+              detectorHealth.loops[key].clipboard.subscriptions && Object.keys(detectorHealth.loops[key].clipboard.subscriptions).length
             }}
           </td>
           <td style="text-align: right;"
-              :class="getColorClass(health.loops[key].elapsedTimeMillis, health.loopSlowThresholdMillis )">
-            {{ health.loops[key].elapsedTimeMillis }}
+              :class="getColorClass(detectorHealth.loops[key].elapsedTimeMillis, detectorHealth.loopSlowThresholdMillis )">
+            {{ detectorHealth.loops[key].elapsedTimeMillis }}
           </td>
 
         </tr>
@@ -191,7 +203,7 @@
 
 
       <div class=" px-3 ">Global Parameters</div>
-      <table class="common-table" style="" v-if="health.networks">
+      <table class="common-table" style="" v-if="detectorHealth.networks">
         <thead style="font-weight: bold;">
         <td>
           Slow Threshold
@@ -219,25 +231,25 @@
         <tr>
 
           <td style="text-align: right;">
-            {{ [health.loopSlowThresholdMillis, 'milliseconds'] | duration('humanize') }}
+            {{ [detectorHealth.loopSlowThresholdMillis, 'milliseconds'] | duration('humanize') }}
           </td>
           <td style="text-align: right;">
-            {{ [health.loopStuckThresholdMillis, 'milliseconds'] | duration('humanize') }}
+            {{ [detectorHealth.loopStuckThresholdMillis, 'milliseconds'] | duration('humanize') }}
           </td>
           <td style="text-align: right;">
-            {{ [health.loopUnsuccessfulThresholdMillis, 'milliseconds'] | duration('humanize') }}
+            {{ [detectorHealth.loopUnsuccessfulThresholdMillis, 'milliseconds'] | duration('humanize') }}
           </td>
           <td style="text-align: right;">
-            {{ health.loopErrorsThreshold }}
+            {{ detectorHealth.loopErrorsThreshold }}
           </td>
           <td style="text-align: right;">
-            {{ [health.subscriptionModificationGraceMillis, 'milliseconds'] | duration('humanize') }}
+            {{ [detectorHealth.subscriptionModificationGraceMillis, 'milliseconds'] | duration('humanize') }}
           </td>
           <td style="text-align: right;">
-            {{ health.onBlocksRequestTimeout }}
+            {{ detectorHealth.onBlocksRequestTimeout }}
           </td>
           <td style="text-align: right;">
-            {{ health.getBlockRequestTimeout }}
+            {{ detectorHealth.getBlockRequestTimeout }}
           </td>
 
         </tr>
@@ -247,7 +259,7 @@
       </table>
 
 
-      <table class="common-table" style="" v-if="health.networks">
+      <table class="common-table" style="" v-if="detectorHealth.networks">
         <thead style="font-weight: bold;">
         <td>
           Endpoint
@@ -255,22 +267,49 @@
         <td>
           Logger Endpoint
         </td>
-        <td>
-          Projects Commit Hash
-        </td>
         </thead>
 
         <tbody>
         <tr>
 
           <td>
-            {{ health.endpoint }}
+            {{ detectorHealth.endpoint }}
           </td>
           <td style="">
-            {{ health.loggerEndpoint }}
+            {{ detectorHealth.loggerEndpoint }}
+          </td>
+
+        </tr>
+
+        </tbody>
+
+      </table>
+
+      <table class="common-table" style="" v-if="detectorHealth.networks">
+        <thead style="font-weight: bold;">
+        <td>
+          Projects Commit Hash (Detector)
+        </td>
+        <td>
+          Projects Commit Hash (Manager)
+        </td>
+        <td>
+          Projects Commit Hash (L3)
+        </td>
+        </thead>
+
+        <tbody>
+        <tr>
+
+
+          <td style="">
+            {{ detectorHealth.projectsCommitHash }}
           </td>
           <td style="">
-            {{ health.projectsCommitHash }}
+            {{ managerHealth && managerHealth.projectsCommitHash }}
+          </td>
+          <td style="">
+
           </td>
 
         </tr>
@@ -281,7 +320,7 @@
 
       <br/>
       <div class=" px-3 ">Networks Parameters</div>
-      <table class="common-table" style="" v-if="health.networks">
+      <table class="common-table" style="" v-if="detectorHealth.networks">
         <thead style="font-weight: bold;">
         <td>
           Network
@@ -297,7 +336,7 @@
         </td>
         </thead>
         <tbody>
-        <tr v-for="network in Object.values(health.networks)" :key="network.id">
+        <tr v-for="network in Object.values(detectorHealth.networks)" :key="network.id">
 
           <td>
             {{ network.id }}
@@ -351,9 +390,9 @@
     <br/>
 
 
-    <div v-if="error" class="justify-content-center flex-column d-flex align-items-center" style="height: 100vh;">
+    <div v-if="detectorError" class="justify-content-center flex-column d-flex align-items-center" style="height: 100vh;">
       <h1>😫</h1>
-      <h5>{{ error }}</h5>
+      <h5>{{ detectorError }}</h5>
     </div>
 
     <div class="loading" v-if="isLoading">
@@ -372,8 +411,10 @@ export default {
 
   data() {
     return {
-      health: null,
-      error: null,
+      detectorHealth: null,
+      managerHealth: null,
+      detectorError: null,
+      managerError: null,
       modeProduction: true,
       isLoading: true
     }
@@ -381,31 +422,9 @@ export default {
 
   async mounted() {
 
-    const loaderFunction = async () => {
+    await this.loaderFunction()
 
-      try {
-
-        const response = await fetch(this.healthEndpoint, {
-          method: 'GET'
-        });
-
-        this.health = (await (response.json()))
-
-        this.error = null
-
-      } catch (e) {
-
-        this.error = e
-
-      }
-
-      this.isLoading = false
-
-    }
-
-    await loaderFunction()
-
-    setInterval(loaderFunction, 5000)
+    setInterval(this.loaderFunction, 5000)
 
   },
   computed: {
@@ -415,15 +434,20 @@ export default {
       return this.modeProduction ? 'https://open-defi-notifications-detect.herokuapp.com/health' : 'https://defi-notifications-detect-test.herokuapp.com/health'
 
     },
+    managerHealthEndpoint() {
+
+      return this.modeProduction ? 'https://us-central1-open-defi-notifications.cloudfunctions.net/app/health' : 'https://us-central1-notifications-deddy-ron-test.cloudfunctions.net/app/health'
+
+    },
     projectsStatistics() {
 
       const subscriptionsByProjects = {}
 
-      if (this.health && this.health.loops) {
+      if (this.detectorHealth && this.detectorHealth.loops) {
 
-        for (const key in this.health.loops) {
+        for (const key in this.detectorHealth.loops) {
 
-          const subscriptions = this.health.loops[key].clipboard.subscriptions;
+          const subscriptions = this.detectorHealth.loops[key].clipboard.subscriptions;
 
           if (subscriptions) {
 
@@ -456,13 +480,13 @@ export default {
 
       let totalSubscriptions = 0
 
-      if (this.health && this.health.loops) {
+      if (this.detectorHealth && this.detectorHealth.loops) {
 
-        for (const key in this.health.loops) {
+        for (const key in this.detectorHealth.loops) {
 
-          if (this.health.loops[key].clipboard.subscriptions) {
+          if (this.detectorHealth.loops[key].clipboard.subscriptions) {
 
-            totalSubscriptions += Object.keys(this.health.loops[key].clipboard.subscriptions).length
+            totalSubscriptions += Object.keys(this.detectorHealth.loops[key].clipboard.subscriptions).length
 
           }
 
@@ -477,13 +501,13 @@ export default {
 
       let totalErrors = 0
 
-      if (this.health && this.health.loops) {
+      if (this.detectorHealth && this.detectorHealth.loops) {
 
-        for (const key in this.health.loops) {
+        for (const key in this.detectorHealth.loops) {
 
-          if (this.health.loops[key].errors) {
+          if (this.detectorHealth.loops[key].errors) {
 
-            totalErrors += this.health.loops[key].errors.length
+            totalErrors += this.detectorHealth.loops[key].errors.length
 
           }
 
@@ -521,19 +545,36 @@ export default {
 
         const response = await fetch(this.healthEndpoint, {
           method: 'GET'
-        });
+        })
 
-        this.health = (await (response.json()))
 
-        this.error = null
+        this.detectorHealth = (await (response.json()))
+
+        this.detectorError = null
 
       } catch (e) {
 
-        this.error = e
+        this.detectorError = e
 
       }
 
       this.isLoading = false
+
+      try {
+
+        const managerResponse = await fetch(this.managerHealthEndpoint, {
+          method: 'GET'
+        })
+
+        this.managerHealth = (await (managerResponse.json()))
+
+        this.managerError = null
+
+      } catch (e) {
+
+        this.managerError = e
+
+      }
 
     }
   }
@@ -546,6 +587,7 @@ export default {
 body {
   background-color: black;
   color: #eee;
+  font-size: 11pt;
 }
 
 .title {
@@ -555,7 +597,7 @@ body {
 .common-table {
 
   background: #222;
-  width: 70vw;
+  width: 90vw;
   margin: 10px 20px;
 
 }
