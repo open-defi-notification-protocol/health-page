@@ -324,7 +324,7 @@
             {{ managerHealth && managerHealth.projectsCommitHash }}
           </td>
           <td style="">
-
+            {{ l3Health && l3Health.projectsCommitHash }}
           </td>
 
         </tr>
