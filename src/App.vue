@@ -58,7 +58,10 @@
           <div v-else class=" fw-bold red"> {{ l3Error }} 😫
           </div>
 
-          <div class="mx-3">|</div>
+        </div>
+
+        <div class="d-flex align-items-center mt-2">
+
           <span class=" global-health-title"> Server uptime: </span>
           <div class=" fw-bold"> {{ [detectorHealth.uptime, 'seconds'] | duration('humanize') }}</div>
 
@@ -402,7 +405,8 @@
     <br/>
 
 
-    <div v-if="detectorError" class="justify-content-center flex-column d-flex align-items-center" style="height: 100vh;">
+    <div v-if="detectorError" class="justify-content-center flex-column d-flex align-items-center"
+         style="height: 100vh;">
       <h1>😫</h1>
       <h5>{{ detectorError }}</h5>
     </div>
@@ -573,7 +577,7 @@ export default {
 
       } catch (e) {
 
-        this.detectorError = e
+        this.detectorError = new Error("Failed fetching Detector health")
 
       }
 
@@ -591,7 +595,23 @@ export default {
 
       } catch (e) {
 
-        this.managerError = e
+        this.managerError = new Error("Failed fetching Manager health")
+
+      }
+
+      try {
+
+        const l3Response = await fetch(this.l3HealthEndpoint, {
+          method: 'GET'
+        })
+
+        this.l3Health = (await (l3Response.json()))
+
+        this.l3Error = null
+
+      } catch (e) {
+
+        this.l3Error = new Error("Failed fetching L3 health")
 
       }
 
