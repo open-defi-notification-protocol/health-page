@@ -47,6 +47,18 @@
           </div>
 
           <div class="mx-3">|</div>
+
+          <div class="global-health-title"> L3 health:</div>
+          <div v-if="!l3Error && l3Health" class=" fw-bold "
+               :class="l3Health.status === 'OK' ? 'green' :(l3Health.status === 'ERROR' ? 'red' : 'orange')">
+            {{ l3Health.status }}
+            {{ l3Health.status === 'OK' ? '😁' : (l3Health.status === 'ERROR' ? '😫' : '😐') }}
+          </div>
+
+          <div v-else class=" fw-bold red"> {{ l3Error }} 😫
+          </div>
+
+          <div class="mx-3">|</div>
           <span class=" global-health-title"> Server uptime: </span>
           <div class=" fw-bold"> {{ [detectorHealth.uptime, 'seconds'] | duration('humanize') }}</div>
 
@@ -413,8 +425,10 @@ export default {
     return {
       detectorHealth: null,
       managerHealth: null,
+      l3Health: null,
       detectorError: null,
       managerError: null,
+      l3Error: null,
       modeProduction: true,
       isLoading: true
     }
@@ -437,6 +451,11 @@ export default {
     managerHealthEndpoint() {
 
       return this.modeProduction ? 'https://us-central1-open-defi-notifications.cloudfunctions.net/app/health' : 'https://us-central1-notifications-deddy-ron-test.cloudfunctions.net/app/health'
+
+    },
+    l3HealthEndpoint() {
+
+      return this.modeProduction ? '' : 'https://defi-notification-l3-test.herokuapp.com/health'
 
     },
     projectsStatistics() {
