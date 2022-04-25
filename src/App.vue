@@ -372,6 +372,45 @@
 
       </table>
 
+      <br/>
+      <div class=" px-3 ">Audit</div>
+      <table class="common-table" style="" v-if="auditResults">
+        <thead style="font-weight: bold;">
+        <td>
+          % Audited
+        </td>
+        <td>
+          Passed
+        </td>
+        <td>
+          Failed
+        </td>
+        <td>
+          % Failed
+        </td>
+        </thead>
+        <tbody>
+        <tr>
+
+          <td style="text-align: right;">
+            {{ auditedRequestsPercentage }}%
+          </td>
+          <td style="text-align: right;">
+            {{ succeededAudits }}
+          </td>
+          <td style="text-align: right;">
+            {{ failedAudits }}
+          </td>
+          <td style="text-align: right;">
+            {{ failedAuditsPercentage }}%
+          </td>
+
+        </tr>
+
+        </tbody>
+
+      </table>
+
     </div>
     <br/>
 
@@ -422,6 +461,11 @@
 
 <script>
 
+
+import {get, getDatabase, ref} from "firebase/database";
+import {initializeApp} from "firebase/app";
+
+
 export default {
   name: 'App',
 
@@ -431,7 +475,10 @@ export default {
       managerHealth: null,
       l3Health: null,
       detectorError: null,
+      auditResults: null,
       managerError: null,
+      prodAuditRef: null,
+      testAuditRef: null,
       l3Error: null,
       modeProduction: true,
       isLoading: true
@@ -440,13 +487,69 @@ export default {
 
   async mounted() {
 
+
+    const prodFB = initializeApp(
+        {
+          apiKey: "AIzaSyBMyomj4UiFVLirE7iG6cJBWU4lZE5dB6k",
+          authDomain: "open-defi-notifications.firebaseapp.com",
+          databaseURL: "https://open-defi-notifications-default-rtdb.firebaseio.com",
+          projectId: "open-defi-notifications",
+          storageBucket: "open-defi-notifications.appspot.com",
+          messagingSenderId: "394201114987",
+          appId: "1:394201114987:web:26bcf3a9374291467b042e",
+          measurementId: "G-X9HH8PYVGB"
+        },
+        "test"
+    )
+
+    const testFB = initializeApp(
+        {
+          apiKey: "AIzaSyCH2vgsAGCxC9Kbzfe1AyZunCXCoJxg-O8",
+          authDomain: "notifications-deddy-ron-test.firebaseapp.com",
+          databaseURL: "https://notifications-deddy-ron-test-default-rtdb.firebaseio.com",
+          projectId: "notifications-deddy-ron-test",
+          storageBucket: "notifications-deddy-ron-test.appspot.com",
+          messagingSenderId: "699309381956",
+          appId: "1:699309381956:web:bf35ff2cde11b684aa1f11",
+          measurementId: "G-KECX1V3QY8"
+        },
+        "prod"
+    )
+
+    const testFBDB = getDatabase(testFB)
+    const prodFBDB = getDatabase(prodFB)
+
+    this.testAuditRef = ref(testFBDB, 'audit')
+    this.prodAuditRef = ref(prodFBDB, 'audit')
+
+
     await this.loaderFunction()
 
-    setInterval(this.loaderFunction, 5000)
+    setInterval(this.loaderFunction, 10000)
 
   },
   computed: {
 
+    auditedRequestsPercentage() {
+
+      return Math.round((1 / this.detectorHealth.auditEveryProb_1_in_x) * 100)
+
+    },
+    succeededAudits() {
+
+      return this.auditResults.filter(audit => audit.auditPassed).length
+
+    },
+    failedAudits() {
+
+      return this.auditResults.filter(audit => !audit.auditPassed).length
+
+    },
+    failedAuditsPercentage() {
+
+      return (this.failedAudits / this.succeededAudits) * 100
+
+    },
     healthEndpoint() {
 
       return this.modeProduction ? 'https://open-defi-notifications-detect.herokuapp.com/health' : 'https://defi-notifications-detect-test.herokuapp.com/health'
@@ -455,6 +558,11 @@ export default {
     managerHealthEndpoint() {
 
       return this.modeProduction ? 'https://us-central1-open-defi-notifications.cloudfunctions.net/app/health' : 'https://us-central1-notifications-deddy-ron-test.cloudfunctions.net/app/health'
+
+    },
+    auditRef() {
+
+      return this.modeProduction ? this.prodAuditRef : this.testAuditRef
 
     },
     l3HealthEndpoint() {
@@ -614,6 +722,9 @@ export default {
         this.l3Error = new Error("Failed fetching L3 health")
 
       }
+
+      const auditResultsMap = (await get(this.auditRef)).val();
+      this.auditResults = auditResultsMap ? Object.values(auditResultsMap) : []
 
     }
   }
