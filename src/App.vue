@@ -92,7 +92,70 @@
         </div>
 
       </div>
+      <table class="common-table" style="" v-if="detectorHealth">
+        <thead style="font-weight: bold;">
+        <td>
+          Module
+        </td>
+        <td>
+          Endpoint
+        </td>
+        <td>
+          Deployment Commit Hash
+        </td>
+        <td>
+          Projects Commit Hash
+        </td>
+        </thead>
 
+        <tbody>
+        <tr v-if="detectorHealth">
+
+          <td>Detector</td>
+          <td>
+            {{ healthEndpoint }}
+          </td>
+          <td>
+            {{ detectorHealth && detectorHealth.commitHash }}
+          </td>
+          <td>
+            {{ detectorHealth && detectorHealth.projectsCommitHash }}
+          </td>
+
+        </tr>
+        <tr v-if="managerHealth">
+
+          <td>Manager</td>
+          <td>
+            {{ managerHealthEndpoint }}
+          </td>
+          <td>
+            {{ managerHealth.commitHash }}
+          </td>
+          <td>
+            {{ managerHealth.projectsCommitHash }}
+          </td>
+
+        </tr>
+        <tr v-if="l3Health">
+
+          <td>Layer 3</td>
+          <td>
+            {{ l3HealthEndpoint }}
+          </td>
+          <td>
+            {{ l3Health.commitHash }}
+          </td>
+          <td>
+            {{ l3Health.projectsCommitHash }}
+          </td>
+
+        </tr>
+
+        </tbody>
+
+      </table>
+      <br/>
       <div v-if="detectorHealth.errors.length > 0">
 
         <div class=" px-3 ">Errors</div>
@@ -265,66 +328,6 @@
           </td>
           <td style="text-align: right;">
             {{ detectorHealth.getBlockRequestTimeout }}
-          </td>
-
-        </tr>
-
-        </tbody>
-
-      </table>
-
-
-      <table class="common-table" style="" v-if="detectorHealth.networks">
-        <thead style="font-weight: bold;">
-        <td>
-          Endpoint
-        </td>
-        <td>
-          Logger Endpoint
-        </td>
-        </thead>
-
-        <tbody>
-        <tr>
-
-          <td>
-            {{ detectorHealth.endpoint }}
-          </td>
-          <td style="">
-            {{ detectorHealth.loggerEndpoint }}
-          </td>
-
-        </tr>
-
-        </tbody>
-
-      </table>
-
-      <table class="common-table" style="" v-if="detectorHealth.networks">
-        <thead style="font-weight: bold;">
-        <td>
-          Projects Commit Hash (Detector)
-        </td>
-        <td>
-          Projects Commit Hash (Manager)
-        </td>
-        <td>
-          Projects Commit Hash (L3)
-        </td>
-        </thead>
-
-        <tbody>
-        <tr>
-
-
-          <td style="">
-            {{ detectorHealth.projectsCommitHash }}
-          </td>
-          <td style="">
-            {{ managerHealth && managerHealth.projectsCommitHash }}
-          </td>
-          <td style="">
-            {{ l3Health && l3Health.projectsCommitHash }}
           </td>
 
         </tr>
@@ -703,6 +706,7 @@ export default {
 
       } catch (e) {
 
+        this.managerHealth = null
         this.managerError = new Error("Failed fetching Manager health")
 
       }
@@ -719,6 +723,7 @@ export default {
 
       } catch (e) {
 
+        this.l3Health = null
         this.l3Error = new Error("Failed fetching L3 health")
 
       }
