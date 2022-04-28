@@ -570,7 +570,7 @@ export default {
     },
     l3HealthEndpoint() {
 
-      return this.modeProduction ? '' : 'https://defi-notification-l3-test.herokuapp.com/health'
+      return this.modeProduction ? 'https://defi-notification-l3-test.herokuapp.com/health' : 'https://defi-notification-l3-test.herokuapp.com/health' // todo add prod node
 
     },
     projectsStatistics() {
