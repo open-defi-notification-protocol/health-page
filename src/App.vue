@@ -570,7 +570,7 @@ export default {
     },
     l3HealthEndpoint() {
 
-      return this.modeProduction ? 'https://defi-notification-l3-test.herokuapp.com/health' : 'https://defi-notification-l3-test.herokuapp.com/health' // todo add prod node
+      return this.modeProduction ? 'http://34.235.246.172:8082/health' : 'https://defi-notification-l3-test.herokuapp.com/health' // todo add prod node
 
     },
     projectsStatistics() {
@@ -769,7 +769,7 @@ body {
 }
 
 .common-table td.winner {
-  color: black;
+  color: white;
   background-color: #03fcf5;
 
 }
