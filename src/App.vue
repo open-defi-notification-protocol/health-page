@@ -80,11 +80,6 @@
              target="_blank"> Papertrail </a>
 
           <div class="mx-3">|</div>
-          <a class=""
-             :href="healthEndpoint"
-             target="_blank"> RAW </a>
-
-          <div class="mx-3">|</div>
           <button @click="toggleEnv" class="px-2 mx-3">
             {{ modeProduction ? 'Production Env' : 'Development Env' }}
           </button>
@@ -113,7 +108,9 @@
 
           <td>Detector</td>
           <td>
-            {{ healthEndpoint }}
+            <a class=""
+               :href="healthEndpoint"
+               target="_blank">{{ healthEndpoint }}</a>
           </td>
           <td>
             {{ detectorHealth && detectorHealth.commitHash }}
@@ -127,7 +124,9 @@
 
           <td>Manager</td>
           <td>
-            {{ managerHealthEndpoint }}
+            <a class=""
+               :href="managerHealthEndpoint"
+               target="_blank">{{ managerHealthEndpoint }}</a>
           </td>
           <td>
             {{ managerHealth.commitHash }}
@@ -141,7 +140,9 @@
 
           <td>Layer 3</td>
           <td>
-            {{ l3HealthEndpoint }}
+            <a class=""
+               :href="l3HealthEndpoint"
+               target="_blank">{{ l3HealthEndpoint }}</a>
           </td>
           <td>
             {{ l3Health.commitHash }}
@@ -405,7 +406,7 @@
             {{ failedAudits }}
           </td>
           <td style="text-align: right;">
-            {{ failedAuditsPercentage }}%
+            {{ failedAuditsPercentage.toFixed(2) }}%
           </td>
 
         </tr>
@@ -570,7 +571,7 @@ export default {
     },
     l3HealthEndpoint() {
 
-      return this.modeProduction ? 'http://34.235.246.172:8082/health' : 'https://defi-notification-l3-test.herokuapp.com/health' // todo add prod node
+      return this.modeProduction ? 'https://odnp-l3-test-node.global.ssl.fastly.net/health' : 'https://defi-notification-l3-test.herokuapp.com/health' // todo add prod node
 
     },
     projectsStatistics() {
@@ -782,6 +783,7 @@ body {
   right: 10vw;
   top: 20vh;
   align-items: center;
+  pointer-events: none;
 }
 
 .loading {
