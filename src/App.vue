@@ -545,12 +545,6 @@ import {get, getDatabase, ref} from "firebase/database";
 import {initializeApp} from "firebase/app";
 import randomColor from "randomcolor";
 
-const options = {
-  responsive: true,
-  maintainAspectRatio: false,
-  legend: false
-};
-
 export default {
   name: 'App',
 
@@ -558,7 +552,13 @@ export default {
 
   data() {
     return {
-      options,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: false
+      },
+      networksChartDataSet: null,
+      projectsChartDataSet: null,
       auditChartDataSet: null,
       detectorHealth: null,
       managerHealth: null,
@@ -575,7 +575,6 @@ export default {
   },
 
   async mounted() {
-
 
     const prodFB = initializeApp(
         {
@@ -614,48 +613,9 @@ export default {
 
     await this.loaderFunction()
 
-    setInterval(this.loaderFunction, 10000)
-
   },
   computed: {
 
-    networksChartDataSet() {
-
-      const loops = this.detectorHealth.loops
-
-      const loopsNames = Object.keys(loops)
-
-      const projectSubCount = loopsNames.map(key => loops[key].clipboard.subscriptions && Object.keys(loops[key].clipboard.subscriptions).length)
-      const colors = loopsNames.map(() => randomColor())
-
-      return {
-        labels: loopsNames,
-        datasets: [
-          {
-            backgroundColor: colors,
-            data: projectSubCount
-          }
-        ]
-      }
-
-    },
-    projectsChartDataSet() {
-
-      const projectNames = this.projectsStatistics.map(ps => ps.projectId)
-      const projectSubCount = this.projectsStatistics.map(ps => ps.subs.length)
-      const colors = this.projectsStatistics.map(() => randomColor())
-
-      return {
-        labels: projectNames,
-        datasets: [
-          {
-            backgroundColor: colors,
-            data: projectSubCount
-          }
-        ]
-      }
-
-    },
     auditedRequestsPercentage() {
 
       return Math.round((1 / this.detectorHealth.auditEveryProb_1_in_x) * 100)
@@ -779,6 +739,88 @@ export default {
   },
   methods: {
 
+    refreshNetworksChartDataSet() {
+
+      const loops = this.detectorHealth.loops
+
+      const loopsNames = Object.keys(loops)
+      const networkSubCount = loopsNames.map(key => loops[key].clipboard.subscriptions && Object.keys(loops[key].clipboard.subscriptions).length)
+      const colors = loopsNames.map(() => randomColor())
+
+      this.networksChartDataSet = {
+        labels: loopsNames,
+        datasets: [
+          {
+            backgroundColor: colors,
+            data: networkSubCount
+          }
+        ]
+      }
+
+      this.$nextTick(() => {
+
+        this.$refs.networks_chart.update()
+
+      })
+
+    },
+    refreshProjectsChartDataSet() {
+
+      const projectNames = this.projectsStatistics.map(ps => ps.projectId)
+      const projectSubCount = this.projectsStatistics.map(ps => ps.subs.length)
+      const colors = this.projectsStatistics.map(() => randomColor())
+
+      if (projectSubCount)
+
+        this.projectsChartDataSet = {
+          labels: projectNames,
+          datasets: [
+            {
+              backgroundColor: colors,
+              data: projectSubCount
+            }
+          ]
+        }
+
+      this.$nextTick(() => {
+
+        this.$refs.projects_chart.update()
+
+      })
+
+
+    },
+    refreshAuditChartDataSet() {
+
+      if (this.auditResults && (!this.auditChartDataSet ||
+          (this.auditChartDataSet.datasets[0].data[0] !== this.succeededAudits || this.auditChartDataSet.datasets[0].data[1] !== this.failedAudits))) {
+
+        this.auditChartDataSet = {
+          labels: ['Succeeded Audits', 'Failed Audits'],
+          datasets: [
+            {
+              backgroundColor: ['green', 'orange'],
+              data: [this.succeededAudits, this.failedAudits]
+            }
+          ]
+        }
+
+        this.$nextTick(() => {
+
+          this.$refs.audit_chart.update()
+
+        })
+
+      }
+
+    },
+    refreshCharts() {
+
+      this.refreshNetworksChartDataSet()
+      this.refreshProjectsChartDataSet()
+      this.refreshAuditChartDataSet()
+
+    },
     getColorClass(value, threshold) {
 
       let ratio = value / threshold
@@ -804,7 +846,6 @@ export default {
           method: 'GET'
         })
 
-
         this.detectorHealth = (await (response.json()))
 
         this.detectorError = null
@@ -816,6 +857,8 @@ export default {
       }
 
       this.isLoading = false
+
+      this.refreshNetworksChartDataSet()
 
       try {
 
@@ -833,6 +876,8 @@ export default {
         this.managerError = new Error("Failed fetching Manager health")
 
       }
+
+      this.refreshProjectsChartDataSet()
 
       try {
 
@@ -855,26 +900,7 @@ export default {
 
       this.auditResults = auditResultsMap ? Object.values(auditResultsMap) : []
 
-      if (this.auditResults && (!this.auditChartDataSet ||
-          (this.auditChartDataSet.datasets[0].data[0] !== this.succeededAudits || this.auditChartDataSet.datasets[0].data[1] !== this.failedAudits))) {
-
-        this.auditChartDataSet = {
-          labels: ['Succeeded Audits', 'Failed Audits'],
-          datasets: [
-            {
-              backgroundColor: ['green', 'orange'],
-              data: [this.succeededAudits, this.failedAudits]
-            }
-          ]
-        }
-
-        let auditChart = this.$refs.audit_chart;
-
-        this.$nextTick(() => {
-          auditChart.update()
-        })
-
-      }
+      this.refreshAuditChartDataSet()
 
     }
   }
@@ -895,7 +921,6 @@ body {
   padding-left: 1rem;
 }
 
-
 .modeTest .title {
   background-color: gray !important;
 }
@@ -903,7 +928,6 @@ body {
 .modeTest .btn {
   background-color: gray !important;
 }
-
 
 .title {
   position: fixed;
