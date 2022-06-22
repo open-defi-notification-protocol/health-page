@@ -13,7 +13,12 @@
 
         </div>
 
-        <div class="main-title mx-4">Open DeFi Notifications - Health</div>
+        <div class="main-title mx-4 d-flex flex-column">
+          <span>Open DeFi Notifications</span>
+          <span class="powered-by">
+          Powered by <img src="https://defi.org/notifications/assets/images/orbs-logo-3.svg">
+            </span>
+        </div>
 
       </div>
 
@@ -39,7 +44,7 @@
 
       <div style="display: flex; flex-direction: column; margin-top: 7rem;" class="">
 
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center gauge-cards">
 
           <health-card
               :health="detectorHealth"
@@ -48,6 +53,8 @@
               title="Detector"
               :healthEndpoint="healthEndpoint"/>
 
+          <div class="vr d-none" style="height: 5rem"></div>
+
           <health-card
               :health="managerHealth"
               :expertMode="expertMode"
@@ -55,11 +62,13 @@
               title="Manager"
               :healthEndpoint="managerHealthEndpoint"/>
 
+          <div class="vr d-none" style="height: 5rem"></div>
+
           <health-card
               :health="l3Health"
               :expertMode="expertMode"
-              fa-icon="fa-network-wired"
-              title="Layer 3"
+              icon="https://www.orbs.com/assets/img/common/logo.svg"
+              title="ORBS L3"
               :healthEndpoint="l3HealthEndpoint"/>
 
         </div>
@@ -1080,11 +1089,21 @@ body {
 
 .logo img {
   padding: 0.15rem;
-  height: 3.7rem;
   cursor: pointer;
-  box-shadow: 0 1px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
   border-radius: 100em;
   background-color: white;
+}
+
+.powered-by{
+  font-size: 12pt;
+  margin-bottom: 0.4rem;
+}
+
+.powered-by img{
+  filter: brightness(100);
+  height: 1.3rem;
+  margin-left: 0.3rem;
 }
 
 .common-table {
@@ -1162,7 +1181,7 @@ body {
   height: 50%;
   width: 1px;
   border: 1px solid #c5c5c5;
-  margin: auto 10px;
+  margin: auto 0;
 }
 
 .card-title {
@@ -1197,12 +1216,12 @@ body {
     margin-bottom: 2rem !important;
   }
 
-  .vr {
+  .charts .vr {
     display: none;
   }
 
   .gauge-icon {
-    font-size: 30pt !important;
+    transform: scale(0.7);
   }
 
   .btn {
@@ -1225,6 +1244,15 @@ body {
 }
 
 @media only screen and (max-width: 800px) {
+
+  .powered-by{
+    font-size: 10pt;
+    margin-bottom: 0;
+  }
+
+  .powered-by img{
+    height: 1.1rem;
+  }
 
   .card {
     box-shadow: none !important;
@@ -1257,9 +1285,6 @@ body {
     padding: 0.1rem;
     height: 2.5rem;
     cursor: pointer;
-    box-shadow: 0 1px 15px rgba(0, 0, 0, 0.3);
-    border-radius: 100em;
-    background-color: white;
   }
 
   .header {
@@ -1273,13 +1298,37 @@ body {
     font-size: 10pt;
   }
 
-  table{
+  table {
     font-size: 10pt;
+  }
+
+  .gauge-icon {
+    transform: scale(0.4);
+    margin-right: 2rem !important;
+    margin-top: -2.2rem;
+  }
+
+  .gauge-cards {
+    margin-top: 1rem;
+  }
+
+  .gauge-cards .vr {
+    display: block !important;
   }
 
 }
 
 @media only screen and (max-width: 600px) {
+
+  .powered-by{
+    font-size: 9pt;
+    margin-bottom: 0;
+  }
+
+  .powered-by img{
+    height: 1rem;
+    margin-bottom: 0.1rem;
+  }
 
   .card {
     box-shadow: none !important;
@@ -1296,11 +1345,8 @@ body {
   }
 
   .gauge-icon {
-    display: none !important;
-  }
-
-  .gauge-card {
-    padding: 1.5rem 0.3rem;
+    transform: scale(0.3);
+    margin-top: -2.3rem !important;
   }
 
   .card-title {
@@ -1311,9 +1357,14 @@ body {
     font-size: 8pt;
   }
 
-  table{
+  table {
     font-size: 8pt;
   }
+
+  .gauge-cards .vr {
+    display: none !important;
+  }
+
 }
 
 @media only screen and (max-width: 800px) {

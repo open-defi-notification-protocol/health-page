@@ -4,18 +4,22 @@
 
     <div v-if="health" class="d-flex flex-column">
 
-      <div class="mb-3 card-title">{{ title.toUpperCase() }}</div>
+      <div class="mb-3 card-title text-nowrap">{{ title.toUpperCase() }}</div>
 
       <div class="gauge-value "
            :class="health.status === 'OK' ? 'text-success' :(health.status === 'ERROR' ? 'text-danger' : 'text-warning')">
         {{ health.status }}
-<!--        {{ health.status === 'OK' ? '😃' : (health.status === 'ERROR' ? '😫' : '😐') }}-->
+        <!--        {{ health.status === 'OK' ? '😃' : (health.status === 'ERROR' ? '😫' : '😐') }}-->
       </div>
 
     </div>
 
-    <div v-if="faIcon && !expertMode" class=" mx-4 fa-5x d-flex gauge-icon align-items-center">
+    <div v-if="faIcon && !expertMode" class="  fa-5x d-flex gauge-icon align-items-center">
       <font-awesome-icon :icon="'fa-solid ' + faIcon"/>
+    </div>
+
+    <div v-else-if="icon && !expertMode" class=" fa-5x d-flex gauge-icon align-items-center">
+      <img :src="icon" width="80">
     </div>
 
     <div class="card-title d-flex flex-column header-button" v-if="expertMode && healthEndpoint">
@@ -34,7 +38,14 @@
 
 
 export default {
-  props: ['health', 'expertMode', 'healthEndpoint', 'title', 'faIcon'],
+  props: [
+    'health',
+    'expertMode',
+    'healthEndpoint',
+    'title',
+    'faIcon',
+    'icon'
+  ],
   methods: {}
 };
 </script>
@@ -43,7 +54,8 @@ export default {
 
 
 .gauge-icon {
-  color: #eee;
+  color: #cdcdcd;
+  opacity: 0.6;
 }
 
 .gauge-value {
