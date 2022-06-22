@@ -1019,7 +1019,7 @@ export default {
 <style lang="css">
 
 body {
-  background-color: #f5f5f5 !important;
+  background-color: #f0f0f0 !important;
   color: #333;
   font-size: 11pt;
 }
