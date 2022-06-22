@@ -1,19 +1,23 @@
 <template>
 
-  <div :class="!modeProduction ? 'modeTest' : ''">
+  <div :class="!modeProduction ? 'modeTest' : ''" class="page">
 
-    <div class="px-3 title justify-content-between">
+    <div class="header px-3 title justify-content-between">
 
-      <div class="logo">
+      <div class="d-flex align-items-center">
 
-        <img onclick="window.open('https://defi.org/notifications/')"
-             src="https://play-lh.googleusercontent.com/1bxBSz9Aj_TESC9mUjs7c365PNvfHm8TUA8L1iMNOxcQpXi2zhUAsqQyhc4VEAKr938U=s360-rw"/>
+        <div class="logo ">
+
+          <img onclick="window.open('https://defi.org/notifications/')"
+               src="https://defi.org/notifications/assets/images/navbar/logo.svg"/>
+
+        </div>
+
+        <div class="main-title mx-4">Open DeFi Notifications - Health</div>
 
       </div>
 
-      <div class="">Open DeFi Notifications - Health</div>
-
-      <div class="mx-1">
+      <div class=" title-buttons d-flex">
 
         <button @click="toggleMode" class="mx-2 btn btn-primary">
           {{ expertMode ? 'Expert Mode' : 'Simple Mode' }}
@@ -23,11 +27,15 @@
           {{ modeProduction ? 'Production Env' : 'Development Env' }}
         </button>
 
+        <button @click=" loaderFunction(true)" class="mx-2 btn btn-primary">
+          <font-awesome-icon icon="fa-solid fa-rotate"/>
+        </button>
+
       </div>
 
     </div>
 
-    <div style="display: flex; flex-direction: column;" v-if="detectorHealth" class="px-3">
+    <div style="display: flex; flex-direction: column;" v-if="detectorHealth" class="px-3 main-container">
 
       <div style="display: flex; flex-direction: column; margin-top: 7rem;" class="">
 
@@ -36,18 +44,21 @@
           <health-card
               :health="detectorHealth"
               :expertMode="expertMode"
+              fa-icon="fa-server"
               title="Detector"
               :healthEndpoint="healthEndpoint"/>
 
           <health-card
               :health="managerHealth"
               :expertMode="expertMode"
+              fa-icon="fa-database"
               title="Manager"
               :healthEndpoint="managerHealthEndpoint"/>
 
           <health-card
               :health="l3Health"
               :expertMode="expertMode"
+              fa-icon="fa-network-wired"
               title="Layer 3"
               :healthEndpoint="l3HealthEndpoint"/>
 
@@ -80,16 +91,17 @@
 
       </div>
 
-      <div class=" card">
+      <div class=" card charts">
 
         <div class="mb-3 card-title">NETWORKS</div>
 
-        <div class="d-flex flex-row justify-content-between ">
+        <div class="d-flex flex-row justify-content-between charts-container">
 
-          <div class="px-4">
+          <div class="px-4 chart-container">
             <div class="chart-title">Networks Performance (ms)</div>
             <BarChart
                 ref="network_performance_chart"
+                class="chart"
                 :width="700"
                 :height="200"
                 :chart-data="networksPerformanceChartDataSet"
@@ -99,10 +111,11 @@
 
           <div class="vr" style="height: 230px"></div>
 
-          <div class="px-4">
+          <div class="px-4 chart-container">
             <div class="chart-title">Subscriptions Pre Network</div>
             <DoughnutChart
                 ref="networks_chart"
+                class="chart"
                 :width="230"
                 :height="200"
                 :chart-data="networksChartDataSet"
@@ -115,29 +128,32 @@
 
       </div>
 
-      <div class=" card">
+      <div class=" card charts">
 
         <div class="mb-3 card-title">DETECTION HEALTH</div>
 
-        <div class="d-flex flex-row justify-content-between ">
+        <div class="d-flex flex-row justify-content-between charts-container ">
 
 
-          <div class="px-4">
+          <div class="px-4 chart-container">
             <div class=" chart-title">Subscriptions Per Project</div>
-            <DoughnutChart :width="700"
-                           :height="200"
-                           ref="projects_chart"
-                           :chart-data="projectsChartDataSet"
-                           :options="options">
+            <DoughnutChart
+                ref="projects_chart"
+                :width="700"
+                class="chart"
+                :height="200"
+                :chart-data="projectsChartDataSet"
+                :options="options">
             </DoughnutChart>
           </div>
 
           <div class="vr" style="height: 230px"></div>
 
-          <div class="px-4">
+          <div class="px-4 chart-container">
             <div class="chart-title">Audit Statistics</div>
             <PolarChart
                 ref="audit_chart"
+                class="chart"
                 :width="230"
                 :height="200"
                 :chart-data="auditChartDataSet"
@@ -591,12 +607,15 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 import {library} from '@fortawesome/fontawesome-svg-core'
 
 /* import specific icons */
-import {faServer} from '@fortawesome/free-solid-svg-icons'
+import {faDatabase, faNetworkWired, faRotate, faServer} from '@fortawesome/free-solid-svg-icons'
 
 import HealthCard from "./HealthCard.vue";
 
 /* add icons to the library */
+library.add(faRotate)
 library.add(faServer)
+library.add(faDatabase)
+library.add(faNetworkWired)
 
 /* add font awesome icon component */
 Vue.component('font-awesome-icon', FontAwesomeIcon)
@@ -941,12 +960,16 @@ export default {
 
       this.$nextTick(() => {
 
-        this.loaderFunction()
+        this.loaderFunction(true)
 
       })
 
     },
-    async loaderFunction() {
+    async loaderFunction(useLoadingMask) {
+
+      if (useLoadingMask) {
+        this.isLoading = true
+      }
 
       try {
 
@@ -1018,6 +1041,10 @@ export default {
 
 <style lang="css">
 
+.page {
+  overflow: hidden;
+}
+
 body {
   background-color: #f0f0f0 !important;
   color: #333;
@@ -1044,11 +1071,15 @@ body {
   color: #fff;
   font-size: 1.8rem;
   background-color: #c231a3;
-  box-shadow: 0 1px 13px rgba(0, 0, 0, 0.5);
   align-items: center;
 }
 
+.header {
+  box-shadow: 0 1px 13px rgba(0, 0, 0, 0.5);
+}
+
 .logo img {
+  padding: 0.15rem;
   height: 3.7rem;
   cursor: pointer;
   box-shadow: 0 1px 15px rgba(0, 0, 0, 0.3);
@@ -1094,9 +1125,7 @@ body {
 
 }
 
-.gauge-card {
-  width: 100%;
-  height: 11rem;
+.charts {
 }
 
 .hidden {
@@ -1138,7 +1167,7 @@ body {
 
 .card-title {
   margin-right: 0.3rem;
-  font-size: 14pt;
+  font-size: 12pt;
   color: #aaa;
 }
 
@@ -1153,5 +1182,180 @@ body {
   border: 1px solid #fff !important;
 }
 
+@media only screen and (max-width: 1150px) {
+
+  .main-container {
+    transform-origin: top;
+  }
+
+  .charts-container {
+    flex-flow: wrap;
+    justify-content: center !important;
+  }
+
+  .chart-container {
+    margin-bottom: 2rem !important;
+  }
+
+  .vr {
+    display: none;
+  }
+
+  .gauge-icon {
+    font-size: 30pt !important;
+  }
+
+  .btn {
+    font-size: 10pt !important;
+  }
+
+  .card-title {
+    font-size: 10pt !important;
+  }
+
+  .gauge-value {
+    font-size: 14pt;
+  }
+
+  .main-title {
+    font-size: 16pt;
+  }
+
+
+}
+
+@media only screen and (max-width: 800px) {
+
+  .card {
+    box-shadow: none !important;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .main-container.px-3 {
+    padding: 0.5rem !important;
+  }
+
+  body {
+
+    width: 100% !important;
+    background-color: white !important;
+  }
+
+  .main-title {
+    font-size: 14pt;
+  }
+
+  .title-buttons {
+    width: 100%;
+    justify-content: end;
+  }
+
+  .logo img {
+    padding: 0.1rem;
+    height: 2.5rem;
+    cursor: pointer;
+    box-shadow: 0 1px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 100em;
+    background-color: white;
+  }
+
+  .header {
+    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
+    padding: 0.8rem 0;
+    height: 8rem;
+    flex-flow: wrap;
+  }
+
+  .chart-title {
+    font-size: 10pt;
+  }
+
+  table{
+    font-size: 10pt;
+  }
+
+}
+
+@media only screen and (max-width: 600px) {
+
+  .card {
+    box-shadow: none !important;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .main-container.px-3 {
+    padding: 0.5rem !important;
+  }
+
+  .main-title {
+    font-size: 12pt;
+  }
+
+  .gauge-icon {
+    display: none !important;
+  }
+
+  .gauge-card {
+    padding: 1.5rem 0.3rem;
+  }
+
+  .card-title {
+    font-size: 8pt !important;
+  }
+
+  .chart-title {
+    font-size: 8pt;
+  }
+
+  table{
+    font-size: 8pt;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .chart {
+    margin: -1rem 0;
+    transform: scale(0.85);
+  }
+}
+
+@media only screen and (max-width: 750px) {
+  .chart {
+    margin: -1.5rem 0;
+    transform: scale(0.8);
+  }
+}
+
+@media only screen and (max-width: 700px) {
+  .chart {
+    margin: -2rem 0;
+    transform: scale(0.75);
+  }
+}
+
+@media only screen and (max-width: 650px) {
+  .chart {
+    margin: -2.5rem 0;
+    transform: scale(0.7);
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .chart {
+    margin: -3rem 0;
+    transform: scale(0.65);
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .chart {
+    margin: -3.5rem 0;
+    transform: scale(0.5);
+  }
+}
 
 </style>
