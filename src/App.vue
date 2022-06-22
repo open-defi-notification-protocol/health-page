@@ -2,128 +2,159 @@
 
   <div :class="!modeProduction ? 'modeTest' : ''">
 
-    <div style="display: flex; flex-direction: column;" v-if="detectorHealth">
+    <div class="px-3 title justify-content-between">
 
-      <div class="px-3 title justify-content-between">
+      <div class="logo">
 
-        <div class="logo">
-
-          <img onclick="window.open('https://defi.org/notifications/')"
-               src="https://play-lh.googleusercontent.com/1bxBSz9Aj_TESC9mUjs7c365PNvfHm8TUA8L1iMNOxcQpXi2zhUAsqQyhc4VEAKr938U=s360-rw"/>
-
-        </div>
-
-        <div class="">Open DeFi Notifications - Health</div>
-
-        <div class="">
-
-          <button @click="toggleEnv" class="mx-auto px-2 mx-3 btn btn-primary">
-            {{ modeProduction ? 'Production Env' : 'Development Env' }}
-          </button>
-
-        </div>
+        <img onclick="window.open('https://defi.org/notifications/')"
+             src="https://play-lh.googleusercontent.com/1bxBSz9Aj_TESC9mUjs7c365PNvfHm8TUA8L1iMNOxcQpXi2zhUAsqQyhc4VEAKr938U=s360-rw"/>
 
       </div>
-      <div style="display: flex; flex-direction: column; margin-top: 6rem;" class=" py-3 content">
+
+      <div class="">Open DeFi Notifications - Health</div>
+
+      <div class="mx-1">
+
+        <button @click="toggleMode" class="mx-2 btn btn-primary">
+          {{ expertMode ? 'Expert Mode' : 'Simple Mode' }}
+        </button>
+
+        <button @click="toggleEnv" class="mx-2 btn btn-primary">
+          {{ modeProduction ? 'Production Env' : 'Development Env' }}
+        </button>
+
+      </div>
+
+    </div>
+
+    <div style="display: flex; flex-direction: column;" v-if="detectorHealth" class="px-3">
+
+      <div style="display: flex; flex-direction: column; margin-top: 7rem;" class="">
 
         <div class="d-flex align-items-center">
 
-          <div class="global-health-title"> Detector health:</div>
-          <div v-if="!detectorError" class=" fw-bold "
-               :class="detectorHealth.status === 'OK' ? 'text-success' :(detectorHealth.status === 'ERROR' ? 'text-danger' : 'text-warning')">
-            {{ detectorHealth.status }}
-            {{ detectorHealth.status === 'OK' ? '😁' : (detectorHealth.status === 'ERROR' ? '😫' : '😐') }}
-          </div>
+          <health-card
+              :health="detectorHealth"
+              :expertMode="expertMode"
+              title="Detector"
+              :healthEndpoint="healthEndpoint"/>
 
-          <div v-else class=" fw-bold text-danger"> {{ detectorError }} 😫
-          </div>
+          <health-card
+              :health="managerHealth"
+              :expertMode="expertMode"
+              title="Manager"
+              :healthEndpoint="managerHealthEndpoint"/>
 
-          <div class="mx-3">|</div>
-
-          <div class="global-health-title"> Manager health:</div>
-          <div v-if="!managerError && managerHealth" class=" fw-bold "
-               :class="managerHealth.status === 'OK' ? 'text-success' :(managerHealth.status === 'ERROR' ? 'text-danger' : 'text-warning')">
-            {{ managerHealth.status }}
-            {{ managerHealth.status === 'OK' ? '😁' : (managerHealth.status === 'ERROR' ? '😫' : '😐') }}
-          </div>
-
-          <div v-else class=" fw-bold text-danger"> {{ managerError }} 😫
-          </div>
-
-          <div class="mx-3">|</div>
-
-          <div class="global-health-title"> L3 health:</div>
-          <div v-if="!l3Error && l3Health" class=" fw-bold "
-               :class="l3Health.status === 'OK' ? 'text-success' :(l3Health.status === 'ERROR' ? 'text-danger' : 'text-warning')">
-            {{ l3Health.status }}
-            {{ l3Health.status === 'OK' ? '😁' : (l3Health.status === 'ERROR' ? '😫' : '😐') }}
-          </div>
-
-          <div v-else class=" fw-bold text-danger"> {{ l3Error }} 😫
-          </div>
+          <health-card
+              :health="l3Health"
+              :expertMode="expertMode"
+              title="Layer 3"
+              :healthEndpoint="l3HealthEndpoint"/>
 
         </div>
 
-        <div class="d-flex align-items-center mt-2">
+        <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
-          <span class=" global-health-title"> Server uptime: </span>
-          <div class=" fw-bold"> {{ [detectorHealth.uptime, 'seconds'] | duration('humanize') }}</div>
+          <table class="d-flex flex-column" :class="expertMode ? 'visible' : 'hidden'">
+            <tbody>
+            <tr>
+              <td class="px-3"> Server uptime:</td>
+              <td class=" fw-bold"> {{ [detectorHealth.uptime, 'seconds'] | duration('humanize') }}</td>
+            </tr>
 
-          <div class="mx-3">|</div>
-          <div class=" global-health-title"> Heap Size:</div>
-          <div class=" fw-bold" v-if="detectorHealth.heapUsedMB"> {{ detectorHealth.heapUsedMB.toFixed(1) }}Mb</div>
-
-          <div class="mx-3">|</div>
-
-          <div class=" global-health-title"> Env:</div>
-          <div class=" fw-bold" v-if="detectorHealth.env"> {{ detectorHealth.env }}</div>
-
-          <div class="mx-3">|</div>
-          <a class=""
-             :href="modeProduction ? 'https://addons-sso.heroku.com/apps/50eb195f-1036-4b99-a124-8653f6d07123/addons/f9f455a8-2cd4-4a43-954d-82d9f90f2d2b' : 'https://addons-sso.heroku.com/apps/de52ad2a-132b-4aee-b9bc-827c32c92272/addons/ebab4863-ea0d-47e4-a92a-1ff525df3a16'"
-             target="_blank"> Papertrail </a>
+            <tr>
+              <td class="px-3"> Heap Size:</td>
+              <td class=" fw-bold" v-if="detectorHealth.heapUsedMB"> {{
+                  detectorHealth.heapUsedMB.toFixed(1)
+                }}Mb
+              </td>
+            </tr>
+            <tr>
+              <td class="px-3"> Env:</td>
+              <td class=" fw-bold" v-if="detectorHealth.env"> {{ detectorHealth.env }}</td>
+            </tr>
+            </tbody>
+          </table>
 
         </div>
 
       </div>
-      <div class="content">
 
-        <div class="d-flex flex-row justify-content-center py-4">
+      <div class=" card">
 
-          <div>
-            <div class="d-flex justify-content-center fw-bold">Networks</div>
+        <div class="mb-3 card-title">NETWORKS</div>
+
+        <div class="d-flex flex-row justify-content-between ">
+
+          <div class="px-4">
+            <div class="chart-title">Networks Performance (ms)</div>
             <BarChart
+                ref="network_performance_chart"
+                :width="700"
+                :height="200"
+                :chart-data="networksPerformanceChartDataSet"
+                :options="barOptions">
+            </BarChart>
+          </div>
+
+          <div class="vr" style="height: 230px"></div>
+
+          <div class="px-4">
+            <div class="chart-title">Subscriptions Pre Network</div>
+            <DoughnutChart
                 ref="networks_chart"
-                :width="200"
-                :height="230"
+                :width="230"
+                :height="200"
                 :chart-data="networksChartDataSet"
-                :options="options">
-            </BarChart>
+                :options="optionsNoLegend">
+            </DoughnutChart>
           </div>
-          <div>
-            <div class="d-flex justify-content-center fw-bold">Projects</div>
-            <BarChart class="px-5"
-                      :width="200"
-                      :height="230"
-                      ref="projects_chart"
-                      :chart-data="projectsChartDataSet"
-                      :options="options">
-            </BarChart>
-          </div>
-          <div>
-            <div class="d-flex justify-content-center fw-bold">Audit</div>
-            <BarChart
-                ref="audit_chart"
-                :width="200"
-                :height="230"
-                :chart-data="auditChartDataSet"
-                :options="options">
-            </BarChart>
-          </div>
+
         </div>
 
+
+      </div>
+
+      <div class=" card">
+
+        <div class="mb-3 card-title">DETECTION HEALTH</div>
+
+        <div class="d-flex flex-row justify-content-between ">
+
+
+          <div class="px-4">
+            <div class=" chart-title">Subscriptions Per Project</div>
+            <DoughnutChart :width="700"
+                           :height="200"
+                           ref="projects_chart"
+                           :chart-data="projectsChartDataSet"
+                           :options="options">
+            </DoughnutChart>
+          </div>
+
+          <div class="vr" style="height: 230px"></div>
+
+          <div class="px-4">
+            <div class="chart-title">Audit Statistics</div>
+            <PolarChart
+                ref="audit_chart"
+                :width="230"
+                :height="200"
+                :chart-data="auditChartDataSet"
+                :options="optionsNoLegend">
+            </PolarChart>
+          </div>
+
+
+        </div>
+
+
+      </div>
+
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
+
         <div class="table-responsive">
-          <table class="  common-table table table-light table-hover table-bordered" style="" v-if="detectorHealth">
+          <table class="  common-table table  table-hover table-bordered" style="" v-if="detectorHealth">
             <thead class="">
             <tr>
               <th>
@@ -197,12 +228,10 @@
         </div>
       </div>
 
-      <br/>
+      <div class="card" v-if="detectorHealth.errors.length > 0">
 
-      <div v-if="detectorHealth.errors.length > 0">
-
-        <div class=" px-3 ">Errors</div>
-        <table class="  common-table table table-light table-hover table-bordered" style="">
+        <div class=" fw-bold">Errors</div>
+        <table class="  common-table table  table-hover table-bordered" style="">
           <thead>
           <tr>
             <td>
@@ -217,7 +246,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="error of detectorHealth.errors" :key="error"
+          <tr v-for="(error, index) of detectorHealth.errors" :key="index"
               :class="error.level > 0 ? (error.level > 1 ? 'text-danger' : 'text-warning') :'' ">
 
             <td>
@@ -236,15 +265,13 @@
 
         </table>
 
-        <br/>
-
       </div>
 
-      <div class="content">
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
         <div class="  pb-2 fw-bold ">Loops Status</div>
         <div class="table-responsive">
-          <table class="  common-table table table-light table-hover table-bordered" style=""
+          <table class="  common-table table  table-hover table-bordered" style=""
                  v-if="detectorHealth.loops">
             <thead>
             <tr>
@@ -330,11 +357,14 @@
 
         </div>
 
-        <br/>
+      </div>
+
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
         <div class=" pb-2 fw-bold">Global Parameters</div>
+
         <div class="table-responsive">
-          <table class="  common-table table table-light table-hover table-bordered" style=""
+          <table class="  common-table table  table-hover table-bordered" style=""
                  v-if="detectorHealth.networks">
             <thead>
             <tr>
@@ -393,12 +423,14 @@
           </table>
         </div>
 
-        <br/>
+      </div>
+
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
         <div class="pb-2 fw-bold">Networks Parameters</div>
 
         <div class="table-responsive">
-          <table class="  common-table table table-light table-hover table-bordered" style=""
+          <table class="  common-table table  table-hover table-bordered" style=""
                  v-if="detectorHealth.networks">
             <thead>
             <tr>
@@ -438,10 +470,13 @@
 
           </table>
         </div>
-        <br/>
+
+      </div>
+
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
         <div class=" px-3 ">Audit</div>
         <div class="table-responsive">
-          <table class="  common-table table table-light table-hover table-bordered" style="" v-if="auditResults">
+          <table class="  common-table table  table-hover table-bordered" style="" v-if="auditResults">
             <thead>
             <tr>
               <th>
@@ -480,13 +515,15 @@
 
           </table>
         </div>
-        <br/>
+      </div>
+
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
         <div class="  pb-2 fw-bold ">Project Statistics</div>
 
         <div class="table-responsive">
 
-          <table class=" common-table table table-light table-hover table-bordered" v-if="projectsStatistics">
+          <table class=" common-table table  table-hover table-bordered" v-if="projectsStatistics">
             <thead>
             <tr>
               <th>
@@ -515,7 +552,6 @@
 
         </div>
 
-
       </div>
 
       <br/>
@@ -539,24 +575,69 @@
 
 <script>
 
+import BarChart from './BarChart.vue'
 import DoughnutChart from './DoughnutChart.vue'
+import PolarChart from './PolarChart.vue'
 
 import {get, getDatabase, ref} from "firebase/database";
 import {initializeApp} from "firebase/app";
 import randomColor from "randomcolor";
+import Vue from 'vue'
+
+/* import font awesome icon component */
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+
+/* import the fontawesome core */
+import {library} from '@fortawesome/fontawesome-svg-core'
+
+/* import specific icons */
+import {faServer} from '@fortawesome/free-solid-svg-icons'
+
+import HealthCard from "./HealthCard.vue";
+
+/* add icons to the library */
+library.add(faServer)
+
+/* add font awesome icon component */
+Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 export default {
   name: 'App',
 
-  components: {BarChart: DoughnutChart},
+  components: {HealthCard, BarChart, DoughnutChart, PolarChart},
 
   data() {
     return {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        legend: {
+          position: 'left'
+        }
+      },
+      optionsNoLegend: {
+        responsive: true,
+        maintainAspectRatio: false,
         legend: false
       },
+      barOptions: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: false,
+        scales: {
+          yAxes: [{
+            gridLines: {
+              drawOnChartArea: false
+            }
+          }],
+          xAxes: [{
+            gridLines: {
+              drawOnChartArea: false
+            }
+          }]
+        }
+      },
+      networksPerformanceChartDataSet: null,
       networksChartDataSet: null,
       projectsChartDataSet: null,
       auditChartDataSet: null,
@@ -570,6 +651,7 @@ export default {
       testAuditRef: null,
       l3Error: null,
       modeProduction: true,
+      expertMode: false,
       isLoading: true
     }
   },
@@ -724,7 +806,7 @@ export default {
 
           if (this.detectorHealth.loops[key].errors) {
 
-            totalErrors += this.detectorHealth.loops[key].errors.length
+            totalErrors += this.detectorHealth.loops[key].errors
 
           }
 
@@ -743,7 +825,16 @@ export default {
 
       const loops = this.detectorHealth.loops
 
-      const loopsNames = Object.keys(loops)
+      const loopsNames = []
+
+      for (const key in loops) {
+
+        if (loops[key].clipboard.subscriptions) {
+          loopsNames.push(key)
+        }
+
+      }
+
       const networkSubCount = loopsNames.map(key => loops[key].clipboard.subscriptions && Object.keys(loops[key].clipboard.subscriptions).length)
       const colors = loopsNames.map(() => randomColor())
 
@@ -757,8 +848,21 @@ export default {
         ]
       }
 
+      const networkPerformance = loopsNames.map(key => loops[key] && loops[key].elapsedTimeMillis)
+
+      this.networksPerformanceChartDataSet = {
+        labels: loopsNames,
+        datasets: [
+          {
+            backgroundColor: colors,
+            data: networkPerformance
+          }
+        ]
+      }
+
       this.$nextTick(() => {
 
+        this.$refs.network_performance_chart.update()
         this.$refs.networks_chart.update()
 
       })
@@ -828,7 +932,11 @@ export default {
       return ratio >= 1 ? 'text-danger' : (ratio < 0.2 ? 'text-success' : 'text-warning')
 
     },
+    toggleMode() {
+      this.expertMode = !this.expertMode
+    },
     toggleEnv() {
+
       this.modeProduction = !this.modeProduction
 
       this.$nextTick(() => {
@@ -911,14 +1019,12 @@ export default {
 <style lang="css">
 
 body {
-  background-color: #fff !important;
+  background-color: #f5f5f5 !important;
   color: #333;
   font-size: 11pt;
 }
 
 .content {
-  padding-right: 1rem;
-  padding-left: 1rem;
 }
 
 .modeTest .title {
@@ -931,13 +1037,14 @@ body {
 
 .title {
   position: fixed;
+  z-index: 10;
   width: 100%;
   height: 6rem;
   display: flex;
   color: #fff;
   font-size: 1.8rem;
   background-color: #c231a3;
-  box-shadow: 0 1px 13px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 13px rgba(0, 0, 0, 0.5);
   align-items: center;
 }
 
@@ -954,7 +1061,7 @@ body {
 }
 
 .loading {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
   height: 100vh;
@@ -976,9 +1083,75 @@ body {
   height: 100%;
 }
 
+.card {
 
-.global-health-title {
-  margin-right: 0.3rem;
+  display: flex;
+  padding: 1.5rem 2rem;
+  margin: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border: none;
+  background-color: white;
+
 }
+
+.gauge-card {
+  width: 100%;
+  height: 11rem;
+}
+
+.hidden {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  max-height: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-out;
+  opacity: 0;
+}
+
+.visible {
+  overflow: hidden;
+  max-height: 100rem;
+  opacity: 1;
+  transition: all 0.3s ease-in;
+}
+
+.right-0 {
+  right: 0;
+}
+
+.chart-title {
+  display: flex;
+  justify-content: center;
+  /*font-weight: bold;*/
+  margin-bottom: 1rem;
+}
+
+.vr {
+  display: inline;
+  height: 50%;
+  width: 1px;
+  border: 1px solid #c5c5c5;
+  margin: auto 10px;
+}
+
+.card-title {
+  margin-right: 0.3rem;
+  font-size: 14pt;
+  color: #aaa;
+}
+
+.btn-primary {
+  background-color: #c231a3 !important;
+  border: 1px solid #ccc !important;
+  box-shadow: none !important;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 1px 10px rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid #fff !important;
+}
+
 
 </style>
