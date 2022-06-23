@@ -1,10 +1,10 @@
 <template>
 
-  <div class="card gauge-card flex-row justify-content-between">
+  <div class="card gauge-card health-card flex-row justify-content-between">
 
     <div v-if="health" class="d-flex flex-column">
 
-      <div class="mb-3 card-title text-nowrap">{{ title.toUpperCase() }}</div>
+      <div class="mb-3 card-title text-nowrap" @click="openLink">{{ title.toUpperCase() }}</div>
 
       <div class="gauge-value "
            :title="health.status === 'OK' ? 'Everything is OK' : 'Warning, please check Expert Mode for more details.'"
@@ -16,20 +16,12 @@
 
     </div>
 
-    <div v-if="faIcon && !expertMode" class="  fa-5x d-flex gauge-icon align-items-center">
+    <div v-if="faIcon" class="  fa-5x d-flex gauge-icon align-items-center">
       <font-awesome-icon :icon="'fa-solid ' + faIcon"/>
     </div>
 
-    <div v-else-if="icon && !expertMode" class=" fa-5x d-flex gauge-icon align-items-center">
+    <div v-else-if="icon" class=" fa-5x d-flex gauge-icon align-items-center">
       <img :src="icon" width="80">
-    </div>
-
-    <div class="card-title d-flex flex-column header-button" v-if="expertMode && healthEndpoint">
-
-      <a class=" "
-         :href="healthEndpoint"
-         target="_blank">RAW</a>
-
     </div>
 
   </div>
@@ -48,26 +40,39 @@ export default {
     'faIcon',
     'icon'
   ],
-  methods: {}
+  methods: {
+
+    openLink() {
+
+      window.open(this.healthEndpoint)
+
+    }
+
+  }
 };
 </script>
 
 <style lang="css">
 
-
 .gauge-icon {
   color: #cdcdcd;
   opacity: 0.6;
+  margin-right: 1rem;
 }
 
-.gauge-value {
+.health-card .gauge-value {
   font-size: 46pt;
   font-weight: bold;
   opacity: 0.8;
+  margin-left: 0.5rem;
 }
 
-.gauge-card {
+.health-card.gauge-card {
   width: 100%;
+}
+
+.health-card.gauge-card .card-title {
+  cursor: pointer;
 }
 
 </style>
