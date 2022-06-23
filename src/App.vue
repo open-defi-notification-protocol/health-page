@@ -73,113 +73,119 @@
 
         </div>
 
-        <div class="card" :class="expertMode ? 'visible' : 'hidden'">
-
-          <table class="d-flex flex-column" :class="expertMode ? 'visible' : 'hidden'">
-            <tbody>
-            <tr>
-              <td class="px-3"> Server uptime:</td>
-              <td class=" fw-bold"> {{ [detectorHealth.uptime, 'seconds'] | duration('humanize') }}</td>
-            </tr>
-
-            <tr>
-              <td class="px-3"> Heap Size:</td>
-              <td class=" fw-bold" v-if="detectorHealth.heapUsedMB"> {{
-                  detectorHealth.heapUsedMB.toFixed(1)
-                }}Mb
-              </td>
-            </tr>
-            <tr>
-              <td class="px-3"> Env:</td>
-              <td class=" fw-bold" v-if="detectorHealth.env"> {{ detectorHealth.env }}</td>
-            </tr>
-            </tbody>
-          </table>
-
-        </div>
-
       </div>
 
-      <div class=" card charts">
+      <div class="d-flex flex-wrap">
 
-        <div class="mb-3 card-title">NETWORKS</div>
+        <div class=" card charts network-performance-chart-container">
 
-        <div class="d-flex flex-row justify-content-between charts-container">
+          <div class="mb-3 card-title">NETWORKS PERFORMANCE (MS)</div>
 
-          <div class="px-4 chart-container">
-            <div class="chart-title">Networks Performance (ms)</div>
-            <BarChart
-                ref="network_performance_chart"
-                class="chart"
-                :width="700"
-                :height="200"
-                :chart-data="networksPerformanceChartDataSet"
-                :options="barOptions">
-            </BarChart>
+          <div class="d-flex flex-row justify-content-between charts-container">
+
+            <div class="px-4 chart-container">
+              <BarChart
+                  ref="network_performance_chart"
+                  class="chart network-performance-chart"
+                  :width="700"
+                  :height="200"
+                  :chart-data="networksPerformanceChartDataSet"
+                  :options="barOptions">
+              </BarChart>
+            </div>
+
           </div>
 
-          <div class="vr" style="height: 230px"></div>
 
-          <div class="px-4 chart-container">
-            <div class="chart-title">Subscriptions Pre Network</div>
-            <DoughnutChart
-                ref="networks_chart"
-                class="chart"
-                :width="230"
-                :height="200"
-                :chart-data="networksChartDataSet"
-                :options="optionsNoLegend">
-            </DoughnutChart>
+        </div>
+        <div class=" card charts network-chart-container">
+
+          <div class="mb-3 card-title">SUBSCRIPTIONS PRE NETWORK</div>
+
+          <div class="d-flex flex-row justify-content-center charts-container">
+
+            <div class="px-4 chart-container">
+              <DoughnutChart
+                  ref="networks_chart"
+                  class="chart"
+                  :width="230"
+                  :height="200"
+                  :chart-data="networksChartDataSet"
+                  :options="optionsNoLegend">
+              </DoughnutChart>
+            </div>
+
           </div>
-
         </div>
 
 
       </div>
 
-      <div class=" card charts">
+      <div class="d-flex flex-wrap">
 
-        <div class="mb-3 card-title">DETECTION HEALTH</div>
+        <div class="card charts subscriptions-chart-container">
 
-        <div class="d-flex flex-row justify-content-between charts-container ">
+          <div class="mb-3 card-title">SUBSCRIPTIONS PER PROJECT</div>
 
+          <div class="d-flex flex-row justify-content-center charts-container ">
 
-          <div class="px-4 chart-container">
-            <div class=" chart-title">Subscriptions Per Project</div>
-            <DoughnutChart
-                ref="projects_chart"
-                :width="700"
-                class="chart"
-                :height="200"
-                :chart-data="projectsChartDataSet"
-                :options="options">
-            </DoughnutChart>
+            <div class="px-4 chart-container">
+              <DoughnutChart
+                  ref="projects_chart"
+                  :width="700"
+                  class="chart projects-chart"
+                  :height="200"
+                  :chart-data="projectsChartDataSet"
+                  :options="options">
+              </DoughnutChart>
+            </div>
+
           </div>
-
-          <div class="vr" style="height: 230px"></div>
-
-          <div class="px-4 chart-container">
-            <div class="chart-title">Audit Statistics</div>
-            <PolarChart
-                ref="audit_chart"
-                class="chart"
-                :width="230"
-                :height="200"
-                :chart-data="auditChartDataSet"
-                :options="optionsNoLegend">
-            </PolarChart>
-          </div>
-
 
         </div>
 
+        <div class="card charts audit-chart-container">
+
+          <div class="mb-3 card-title">AUDIT STATISTICS</div>
+
+          <div class="d-flex flex-row justify-content-center charts-container ">
+
+            <div class="px-4 chart-container">
+              <PolarChart
+                  v-if="auditChartDataSet"
+                  ref="audit_chart"
+                  class="chart"
+                  :width="230"
+                  :height="200"
+                  :chart-data="auditChartDataSet"
+                  :options="optionsNoLegend">
+              </PolarChart>
+              <img v-else width="40" height="40"
+                   src="https://media3.giphy.com/media/L05HgB2h6qICDs5Sms/giphy.gif?cid=ecf05e478m15g7rgia18ipg9menvhnn4ahik4vcjd5zzr33r&rid=giphy.gif&ct=s"/>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="d-flex flex-column audit-gauges">
+
+          <gauge-card class="w-auto"
+                      :value="succeededAudits"
+                      title="Succeeded Audits"/>
+
+          <gauge-card class="w-auto"
+                      :value="failedAudits"
+                      title="Failed Audits"/>
+
+        </div>
 
       </div>
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
-
+        <div class="  pb-2 card-title">INFRASTRUCTURE</div>
         <div class="table-responsive">
-          <table class="  common-table table  table-hover table-bordered" style="" v-if="detectorHealth">
+          <table class="  common-table table  table-hover " style="" v-if="detectorHealth">
             <thead class="">
             <tr>
               <th>
@@ -256,7 +262,7 @@
       <div class="card" v-if="detectorHealth.errors.length > 0">
 
         <div class=" fw-bold">Errors</div>
-        <table class="  common-table table  table-hover table-bordered" style="">
+        <table class="  common-table table  table-hover " style="">
           <thead>
           <tr>
             <td>
@@ -294,9 +300,9 @@
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
-        <div class="  pb-2 fw-bold ">Loops Status</div>
+        <div class="  pb-2 card-title">LOOPS STATUS</div>
         <div class="table-responsive">
-          <table class="  common-table table  table-hover table-bordered" style=""
+          <table class="  common-table table  table-hover " style=""
                  v-if="detectorHealth.loops">
             <thead>
             <tr>
@@ -386,10 +392,10 @@
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
-        <div class=" pb-2 fw-bold">Global Parameters</div>
+        <div class=" pb-2 card-title">GLOBAL PARAMETERS</div>
 
         <div class="table-responsive">
-          <table class="  common-table table  table-hover table-bordered" style=""
+          <table class="  common-table table  table-hover " style=""
                  v-if="detectorHealth.networks">
             <thead>
             <tr>
@@ -452,10 +458,10 @@
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
-        <div class="pb-2 fw-bold">Networks Parameters</div>
+        <div class="pb-2 card-title">NETWORKS PARAMETERS</div>
 
         <div class="table-responsive">
-          <table class="  common-table table  table-hover table-bordered" style=""
+          <table class="  common-table table  table-hover " style=""
                  v-if="detectorHealth.networks">
             <thead>
             <tr>
@@ -470,6 +476,9 @@
               </th>
               <th>
                 Executor Async Size
+              </th>
+              <th>
+                Batch Throttling
               </th>
             </tr>
             </thead>
@@ -488,6 +497,9 @@
               <td style="text-align: right;">
                 {{ network.executor_asyncSize }}
               </td>
+              <td style="text-align: right;">
+                {{ network.executor_MinBatchProcessTime }}
+              </td>
 
             </tr>
 
@@ -499,9 +511,9 @@
       </div>
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
-        <div class=" px-3 ">Audit</div>
+        <div class=" pb-2 card-title">AUDIT</div>
         <div class="table-responsive">
-          <table class="  common-table table  table-hover table-bordered" style="" v-if="auditResults">
+          <table class="  common-table table  table-hover " style="" v-if="auditResults">
             <thead>
             <tr>
               <th>
@@ -531,7 +543,7 @@
                 {{ failedAudits }}
               </td>
               <td style="text-align: right;">
-                {{ failedAuditsPercentage.toFixed(2) }}%
+                {{ failedAuditsPercentage }}%
               </td>
 
             </tr>
@@ -544,11 +556,11 @@
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
-        <div class="  pb-2 fw-bold ">Project Statistics</div>
+        <div class="  pb-2 card-title">PROJECT STATISTICS</div>
 
         <div class="table-responsive">
 
-          <table class=" common-table table  table-hover table-bordered" v-if="projectsStatistics">
+          <table class=" common-table table  table-hover " v-if="projectsStatistics">
             <thead>
             <tr>
               <th>
@@ -578,6 +590,38 @@
         </div>
 
       </div>
+
+      <div class="card pb-5" :class="expertMode ? 'visible' : 'hidden'">
+
+        <div class="  pb-2 card-title">DETECTOR</div>
+
+        <div class="table-responsive">
+
+          <table class="d-flex flex-column" :class="expertMode ? 'visible' : 'hidden'">
+            <tbody>
+            <tr>
+              <td class="px-3"> Server uptime:</td>
+              <td class=" fw-bold"> {{ [detectorHealth.uptime, 'seconds'] | duration('humanize') }}</td>
+            </tr>
+
+            <tr>
+              <td class="px-3"> Heap Size:</td>
+              <td class=" fw-bold" v-if="detectorHealth.heapUsedMB"> {{
+                  detectorHealth.heapUsedMB.toFixed(1)
+                }}Mb
+              </td>
+            </tr>
+            <tr>
+              <td class="px-3"> Env:</td>
+              <td class=" fw-bold" v-if="detectorHealth.env"> {{ detectorHealth.env }}</td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+
+      </div>
+
 
       <br/>
 
@@ -616,9 +660,18 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 import {library} from '@fortawesome/fontawesome-svg-core'
 
 /* import specific icons */
-import {faCheck, faRemove,faWarning, faDatabase, faNetworkWired, faRotate, faServer} from '@fortawesome/free-solid-svg-icons'
+import {
+  faCheck,
+  faDatabase,
+  faNetworkWired,
+  faRemove,
+  faRotate,
+  faServer,
+  faWarning
+} from '@fortawesome/free-solid-svg-icons'
 
 import HealthCard from "./HealthCard.vue";
+import GaugeCard from "@/GaugeCard";
 
 /* add icons to the library */
 library.add(faCheck)
@@ -632,10 +685,12 @@ library.add(faNetworkWired)
 /* add font awesome icon component */
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
+const numberFormatter = Intl.NumberFormat('en');
+
 export default {
   name: 'App',
 
-  components: {HealthCard, BarChart, DoughnutChart, PolarChart},
+  components: {GaugeCard, HealthCard, BarChart, DoughnutChart, PolarChart},
 
   data() {
     return {
@@ -682,7 +737,7 @@ export default {
       testAuditRef: null,
       l3Error: null,
       modeProduction: true,
-      expertMode: false,
+      expertMode: true,
       isLoading: true
     }
   },
@@ -745,8 +800,11 @@ export default {
 
     },
     failedAuditsPercentage() {
+      return this.auditResults && numberFormatter.format((this.failedAudits / this.auditResults.length) * 100)
 
-      return (this.failedAudits / this.succeededAudits) * 100
+    },
+    succeededAuditsPercentage() {
+      return this.auditResults && numberFormatter.format((this.succeededAudits / this.auditResults.length) * 100)
 
     },
     healthEndpoint() {
@@ -928,14 +986,14 @@ export default {
     refreshAuditChartDataSet() {
 
       if (this.auditResults && (!this.auditChartDataSet ||
-          (this.auditChartDataSet.datasets[0].data[0] !== this.succeededAudits || this.auditChartDataSet.datasets[0].data[1] !== this.failedAudits))) {
+          (this.auditChartDataSet.datasets[0].data[0] !== this.succeededAuditsPercentage || this.auditChartDataSet.datasets[0].data[1] !== this.failedAuditsPercentage))) {
 
         this.auditChartDataSet = {
           labels: ['Succeeded Audits', 'Failed Audits'],
           datasets: [
             {
               backgroundColor: ['green', 'orange'],
-              data: [this.succeededAudits, this.failedAudits]
+              data: [this.succeededAuditsPercentage, this.failedAuditsPercentage]
             }
           ]
         }
@@ -1098,12 +1156,12 @@ body {
   background-color: white;
 }
 
-.powered-by{
+.powered-by {
   font-size: 12pt;
   margin-bottom: 0.4rem;
 }
 
-.powered-by img{
+.powered-by img {
   filter: brightness(100);
   height: 1.3rem;
   margin-left: 0.3rem;
@@ -1139,8 +1197,8 @@ body {
 .card {
 
   display: flex;
-  padding: 1.5rem 2rem;
-  margin: 1rem;
+  padding: 1.2rem 1.5rem;
+  margin: 0.7rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   border: none;
   background-color: white;
@@ -1204,7 +1262,47 @@ body {
   border: 1px solid #fff !important;
 }
 
+.charts {
+  flex: 1 !important;
+}
+
+.subscriptions-chart-container {
+  min-width: 680px;
+}
+
+.network-chart-container,
+.audit-chart-container {
+  min-width: 280px;
+}
+
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center !important;
+  height: 100%;
+}
+
+.projects-chart {
+  margin-right: -7rem !important;
+}
+
+.audit-gauges {
+  flex: 1;
+}
+
+.network-performance-chart-container {
+  min-width: 760px;
+}
+
+@media only screen and (max-width: 1350px) {
+
+}
+
 @media only screen and (max-width: 1150px) {
+
+  .projects-chart {
+    margin-right: -3rem !important;
+  }
 
   .main-container {
     transform-origin: top;
@@ -1236,37 +1334,45 @@ body {
   }
 
   .gauge-value {
-    font-size: 14pt;
+    font-size: 20pt !important;
   }
 
   .main-title {
     font-size: 16pt;
   }
 
-
 }
 
 @media only screen and (max-width: 800px) {
 
-  .powered-by{
+  .powered-by {
     font-size: 10pt;
     margin-bottom: 0;
   }
 
-  .powered-by img{
+  .powered-by img {
     height: 1.1rem;
+  }
+
+  .gauge-value {
+    font-size: 14pt !important;
   }
 
   .card {
     box-shadow: none !important;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 0;
-    padding-right: 0;
+    border-top: 1px solid #ddd;
+    border-radius: 0;
+    margin: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .health-card {
+    border: none;
   }
 
   .main-container.px-3 {
-    padding: 0.5rem !important;
+    padding: 0 !important;
   }
 
   body {
@@ -1319,58 +1425,6 @@ body {
     display: block !important;
   }
 
-}
-
-@media only screen and (max-width: 600px) {
-
-  .powered-by{
-    font-size: 9pt;
-    margin-bottom: 0;
-  }
-
-  .powered-by img{
-    height: 1rem;
-    margin-bottom: 0.1rem;
-  }
-
-  .card {
-    box-shadow: none !important;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  .main-container.px-3 {
-    padding: 0.5rem !important;
-  }
-
-  .main-title {
-    font-size: 12pt;
-  }
-
-  .gauge-icon {
-    transform: scale(0.3);
-    margin-top: -2.3rem !important;
-  }
-
-  .card-title {
-    font-size: 8pt !important;
-  }
-
-  .chart-title {
-    font-size: 8pt;
-  }
-
-  table {
-    font-size: 8pt;
-  }
-
-  .gauge-cards .vr {
-    display: none !important;
-  }
-
-}
-
-@media only screen and (max-width: 800px) {
   .chart {
     margin: -1rem 0;
     transform: scale(0.85);
@@ -1399,10 +1453,62 @@ body {
 }
 
 @media only screen and (max-width: 600px) {
+
+  .subscriptions-chart-container,
+  .network-performance-chart-container {
+    min-width: 400px;
+  }
+
+  .network-chart-container,
+  .audit-chart-container {
+    min-width: 190px;
+  }
+
   .chart {
     margin: -3rem 0;
     transform: scale(0.65);
   }
+
+  .powered-by {
+    font-size: 9pt;
+    margin-bottom: 0;
+  }
+
+  .powered-by img {
+    height: 1rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .card {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .main-title {
+    font-size: 12pt;
+  }
+
+  .gauge-icon {
+    transform: scale(0.3);
+    margin-top: -2.3rem !important;
+  }
+
+  .card-title {
+    font-size: 8pt !important;
+  }
+
+  .chart-title {
+    font-size: 8pt;
+  }
+
+  table {
+    font-size: 8pt;
+  }
+
+  .gauge-cards .vr {
+    display: none !important;
+  }
+
 }
 
 @media only screen and (max-width: 500px) {
