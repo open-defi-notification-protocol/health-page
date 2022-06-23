@@ -616,11 +616,14 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 import {library} from '@fortawesome/fontawesome-svg-core'
 
 /* import specific icons */
-import {faDatabase, faNetworkWired, faRotate, faServer} from '@fortawesome/free-solid-svg-icons'
+import {faCheck, faRemove,faWarning, faDatabase, faNetworkWired, faRotate, faServer} from '@fortawesome/free-solid-svg-icons'
 
 import HealthCard from "./HealthCard.vue";
 
 /* add icons to the library */
+library.add(faCheck)
+library.add(faRemove)
+library.add(faWarning)
 library.add(faRotate)
 library.add(faServer)
 library.add(faDatabase)
