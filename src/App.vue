@@ -1205,9 +1205,6 @@ body {
 
 }
 
-.charts {
-}
-
 .hidden {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
@@ -1304,10 +1301,6 @@ body {
     margin-right: -3rem !important;
   }
 
-  .main-container {
-    transform-origin: top;
-  }
-
   .charts-container {
     flex-flow: wrap;
     justify-content: center !important;
@@ -1344,6 +1337,11 @@ body {
 }
 
 @media only screen and (max-width: 800px) {
+
+  .network-performance-chart-container {
+    min-width: 600px;
+  }
+
 
   .powered-by {
     font-size: 10pt;
