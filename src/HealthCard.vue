@@ -7,8 +7,10 @@
       <div class="mb-3 card-title text-nowrap">{{ title.toUpperCase() }}</div>
 
       <div class="gauge-value "
-           :class="health.status === 'OK' ? 'text-success' :(health.status === 'ERROR' ? 'text-danger' : 'text-warning')">
-        {{ health.status }}
+           :title="health.status === 'OK' ? 'Everything is OK' : 'Warning, please check Expert Mode for more details.'"
+           :class="health.status === 'OK' ? 'text-success' :(health.status === 'ERROR' ? 'text-warning' : 'text-warning')">
+        <font-awesome-icon v-if="health.status === 'OK'" icon="fa-solid fa-check"/>
+        <font-awesome-icon v-else icon="fa-solid fa-warning"/>
         <!--        {{ health.status === 'OK' ? '😃' : (health.status === 'ERROR' ? '😫' : '😐') }}-->
       </div>
 
