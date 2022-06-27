@@ -23,7 +23,7 @@ const vm = new Vue({
 
     render: h => h(App),
     mounted() {
-        document.title = "Detector Health"
+        document.title = "Open DeFi Notifications Status"
     }
 });
 
