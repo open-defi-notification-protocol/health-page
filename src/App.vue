@@ -9,7 +9,7 @@
         <div class="logo ">
 
           <img onclick="window.open('https://defi.org/notifications/')"
-               src="https://defi.org/notifications/assets/images/navbar/logo.svg"/>
+               src="./assets/img/odnp-logo.png"/>
 
         </div>
 
@@ -49,7 +49,7 @@
           <health-card
               :health="detectorHealth"
               :expertMode="expertMode"
-              icon="./assets/detector.png"
+              :icon="`${publicPath}img/detector.png`"
               title="Detector"
               description="On-chain events scanner"
               :healthEndpoint="healthEndpoint"/>
@@ -57,7 +57,7 @@
           <health-card
               :health="managerHealth"
               :expertMode="expertMode"
-              icon="./assets/manager.png"
+              :icon="`${publicPath}img/manager.png`"
               title="Manager"
               description="Subscriptions management"
               :healthEndpoint="managerHealthEndpoint"/>
@@ -65,7 +65,7 @@
           <health-card
               :health="l3Health"
               :expertMode="expertMode"
-              icon="./assets/l3.png"
+              :icon="`${publicPath}img/l3.png`"
               title="Orbs L3"
               description="Decentralized layer"
               :healthEndpoint="l3HealthEndpoint"/>
@@ -167,8 +167,12 @@
                   :chart-data="auditChartDataSet"
                   :options="optionsNoLegend">
               </PolarChart>
-              <img v-else width="40" height="40"
-                   src="https://media3.giphy.com/media/L05HgB2h6qICDs5Sms/giphy.gif?cid=ecf05e478m15g7rgia18ipg9menvhnn4ahik4vcjd5zzr33r&rid=giphy.gif&ct=s"/>
+
+              <div v-else class="d-flex align-items-center h-100">
+                <img width="40" height="40"
+                     src="https://media3.giphy.com/media/L05HgB2h6qICDs5Sms/giphy.gif?cid=ecf05e478m15g7rgia18ipg9menvhnn4ahik4vcjd5zzr33r&rid=giphy.gif&ct=s"/>
+              </div>
+
             </div>
 
           </div>
@@ -646,7 +650,7 @@ import {get, getDatabase, ref} from "firebase/database";
 import {initializeApp} from "firebase/app";
 import randomColor from "randomcolor";
 import Vue from 'vue'
-import '../public/scss/style.scss'
+import './scss/style.scss'
 
 /* import font awesome icon component */
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
@@ -689,6 +693,7 @@ export default {
 
   data() {
     return {
+      publicPath: process.env.BASE_URL,
       options: {
         responsive: true,
         maintainAspectRatio: false,

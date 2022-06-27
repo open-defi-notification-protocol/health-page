@@ -13,7 +13,7 @@
 
     </div>
 
-    <div class="health-value"
+    <div v-if="health" class="health-value" @click="openLink"
          :title="health.status === 'OK' ? 'Everything is OK' : 'Warning, please check Expert Mode for more details.'">
       <font-awesome-icon v-if="health.status === 'OK'" icon="fa-solid fa-check"/>
       <font-awesome-icon v-else icon="fa-solid fa-warning" style="margin-top: -2px"/>
