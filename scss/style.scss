@@ -24,6 +24,10 @@ body {
   }
 }
 
+.charts-container {
+  height: 100%;
+}
+
 .header {
 
   position: fixed;
@@ -331,7 +335,7 @@ body {
     min-width: 600px;
   }
 
-  .header{
+  .header {
     margin: 1rem;
     width: calc(100% - 2rem);
   }
