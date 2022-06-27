@@ -2,7 +2,7 @@
 
   <div :class="!modeProduction ? 'modeTest' : ''" class="page">
 
-    <div class="header px-3 title justify-content-between">
+    <div class="header px-3 justify-content-between">
 
       <div class="d-flex align-items-center">
 
@@ -24,9 +24,9 @@
 
       <div class=" title-buttons d-flex">
 
-        <button @click="toggleMode" class="mx-2 btn btn-primary">
-          {{ expertMode ? 'Expert Mode' : 'Simple Mode' }}
-        </button>
+        <!--        <button @click="toggleMode" class="mx-2 btn btn-primary">
+                  {{ expertMode ? 'Expert Mode' : 'Simple Mode' }}
+                </button>-->
 
         <button @click="toggleEnv" class="mx-2 btn btn-primary">
           {{ modeProduction ? 'Production Env' : 'Development Env' }}
@@ -42,34 +42,41 @@
 
     <div style="display: flex; flex-direction: column;" v-if="detectorHealth" class="px-3 main-container">
 
-      <div style="display: flex; flex-direction: column; margin-top: 7rem;" class="">
+      <div style="display: flex; flex-direction: column; margin-top: 9.5rem;" class="gauges">
 
-        <div class="d-flex align-items-center gauge-cards">
+        <div class="d-flex flex-wrap gauge-cards">
 
           <health-card
               :health="detectorHealth"
               :expertMode="expertMode"
-              fa-icon="fa-server"
+              icon="./assets/detector.png"
               title="Detector"
+              description="On-chain events scanner"
               :healthEndpoint="healthEndpoint"/>
-
-          <div class="vr d-none" style="height: 5rem"></div>
 
           <health-card
               :health="managerHealth"
               :expertMode="expertMode"
-              fa-icon="fa-database"
+              icon="./assets/manager.png"
               title="Manager"
+              description="Subscriptions management"
               :healthEndpoint="managerHealthEndpoint"/>
-
-          <div class="vr d-none" style="height: 5rem"></div>
 
           <health-card
               :health="l3Health"
               :expertMode="expertMode"
-              icon="https://www.orbs.com/assets/img/common/logo.svg"
-              title="ORBS L3"
+              icon="./assets/l3.png"
+              title="Orbs L3"
+              description="Decentralized layer"
               :healthEndpoint="l3HealthEndpoint"/>
+
+          <gauge-card class="w-auto"
+                      :value="succeededAudits"
+                      title="Succeeded Audits"/>
+
+          <gauge-card class="w-auto"
+                      :value="failedAudits"
+                      title="Failed Audits"/>
 
         </div>
 
@@ -79,7 +86,7 @@
 
         <div class=" card charts network-performance-chart-container">
 
-          <div class="mb-3 card-title">NETWORKS PERFORMANCE (MS)</div>
+          <div class="mb-3 card-title">Networks Performance (ms)</div>
 
           <div class="d-flex flex-row justify-content-between charts-container">
 
@@ -100,7 +107,7 @@
         </div>
         <div class=" card charts network-chart-container">
 
-          <div class="mb-3 card-title">SUBSCRIPTIONS PRE NETWORK</div>
+          <div class="mb-3 card-title">Subscriptions per Network</div>
 
           <div class="d-flex flex-row justify-content-center charts-container">
 
@@ -125,7 +132,7 @@
 
         <div class="card charts subscriptions-chart-container">
 
-          <div class="mb-3 card-title">SUBSCRIPTIONS PER PROJECT</div>
+          <div class="mb-3 card-title">Subscriptions per Project</div>
 
           <div class="d-flex flex-row justify-content-center charts-container ">
 
@@ -146,7 +153,7 @@
 
         <div class="card charts audit-chart-container">
 
-          <div class="mb-3 card-title">AUDIT STATISTICS</div>
+          <div class="mb-3 card-title">Audit Statistics</div>
 
           <div class="d-flex flex-row justify-content-center charts-container ">
 
@@ -168,22 +175,41 @@
 
         </div>
 
-        <div class="d-flex flex-column audit-gauges">
+      </div>
 
-          <gauge-card class="w-auto"
-                      :value="succeededAudits"
-                      title="Succeeded Audits"/>
+      <div class="card pb-5" :class="expertMode ? 'visible' : 'hidden'">
 
-          <gauge-card class="w-auto"
-                      :value="failedAudits"
-                      title="Failed Audits"/>
+        <div class="  pb-2 card-title">Detector Health</div>
+
+        <div class="table-responsive">
+
+          <table class="d-flex flex-column" :class="expertMode ? 'visible' : 'hidden'">
+            <tbody>
+            <tr>
+              <td class="px-3"> Server uptime:</td>
+              <td class=" fw-bold"> {{ [detectorHealth.uptime, 'seconds'] | duration('humanize') }}</td>
+            </tr>
+
+            <tr>
+              <td class="px-3"> Heap Size:</td>
+              <td class=" fw-bold" v-if="detectorHealth.heapUsedMB"> {{
+                  detectorHealth.heapUsedMB.toFixed(1)
+                }}Mb
+              </td>
+            </tr>
+            <tr>
+              <td class="px-3"> Environment:</td>
+              <td class=" fw-bold" v-if="detectorHealth.env"> {{ detectorHealth.env }}</td>
+            </tr>
+            </tbody>
+          </table>
 
         </div>
 
       </div>
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
-        <div class="  pb-2 card-title">INFRASTRUCTURE</div>
+        <div class="  pb-2 card-title">Infrastructure</div>
         <div class="table-responsive">
           <table class="  common-table table  table-hover " style="" v-if="detectorHealth">
             <thead class="">
@@ -300,7 +326,7 @@
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
-        <div class="  pb-2 card-title">LOOPS STATUS</div>
+        <div class="  pb-2 card-title">Loops Status</div>
         <div class="table-responsive">
           <table class="  common-table table  table-hover " style=""
                  v-if="detectorHealth.loops">
@@ -392,7 +418,7 @@
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
-        <div class=" pb-2 card-title">GLOBAL PARAMETERS</div>
+        <div class=" pb-2 card-title">Global Parameters</div>
 
         <div class="table-responsive">
           <table class="  common-table table  table-hover " style=""
@@ -458,7 +484,7 @@
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
-        <div class="pb-2 card-title">NETWORKS PARAMETERS</div>
+        <div class="pb-2 card-title">Network Parameters</div>
 
         <div class="table-responsive">
           <table class="  common-table table  table-hover " style=""
@@ -511,7 +537,7 @@
       </div>
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
-        <div class=" pb-2 card-title">AUDIT</div>
+        <div class=" pb-2 card-title">Audit</div>
         <div class="table-responsive">
           <table class="  common-table table  table-hover " style="" v-if="auditResults">
             <thead>
@@ -556,7 +582,7 @@
 
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
 
-        <div class="  pb-2 card-title">PROJECT STATISTICS</div>
+        <div class="  pb-2 card-title">Project Statistics</div>
 
         <div class="table-responsive">
 
@@ -591,38 +617,6 @@
 
       </div>
 
-      <div class="card pb-5" :class="expertMode ? 'visible' : 'hidden'">
-
-        <div class="  pb-2 card-title">DETECTOR</div>
-
-        <div class="table-responsive">
-
-          <table class="d-flex flex-column" :class="expertMode ? 'visible' : 'hidden'">
-            <tbody>
-            <tr>
-              <td class="px-3"> Server uptime:</td>
-              <td class=" fw-bold"> {{ [detectorHealth.uptime, 'seconds'] | duration('humanize') }}</td>
-            </tr>
-
-            <tr>
-              <td class="px-3"> Heap Size:</td>
-              <td class=" fw-bold" v-if="detectorHealth.heapUsedMB"> {{
-                  detectorHealth.heapUsedMB.toFixed(1)
-                }}Mb
-              </td>
-            </tr>
-            <tr>
-              <td class="px-3"> Env:</td>
-              <td class=" fw-bold" v-if="detectorHealth.env"> {{ detectorHealth.env }}</td>
-            </tr>
-            </tbody>
-          </table>
-
-        </div>
-
-      </div>
-
-
       <br/>
 
     </div>
@@ -652,6 +646,7 @@ import {get, getDatabase, ref} from "firebase/database";
 import {initializeApp} from "firebase/app";
 import randomColor from "randomcolor";
 import Vue from 'vue'
+import '../public/scss/style.scss'
 
 /* import font awesome icon component */
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
@@ -1108,412 +1103,3 @@ export default {
 
 }
 </script>
-
-<style lang="css">
-
-.page {
-  overflow: hidden;
-}
-
-body {
-  background-color: #f0f0f0 !important;
-  color: #333;
-  font-size: 11pt;
-}
-
-.content {
-}
-
-.modeTest .title {
-  background-color: gray !important;
-}
-
-.modeTest .btn {
-  background-color: gray !important;
-}
-
-.title {
-  position: fixed;
-  z-index: 10;
-  width: 100%;
-  height: 6rem;
-  display: flex;
-  color: #fff;
-  font-size: 1.8rem;
-  background-color: #c231a3;
-  align-items: center;
-}
-
-.header {
-  box-shadow: 0 1px 13px rgba(0, 0, 0, 0.5);
-}
-
-.logo img {
-  padding: 0.15rem;
-  cursor: pointer;
-  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
-  border-radius: 100em;
-  background-color: white;
-}
-
-.powered-by {
-  font-size: 12pt;
-  margin-bottom: 0.4rem;
-}
-
-.powered-by img {
-  filter: brightness(100);
-  height: 1.3rem;
-  margin-left: 0.3rem;
-}
-
-.common-table {
-
-}
-
-.loading {
-  background-color: rgba(0, 0, 0, 0.1);
-  position: fixed;
-  top: 0;
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.loading img {
-  height: 4rem;
-}
-
-.background {
-  opacity: 0.1;
-  pointer-events: none;
-  position: fixed;
-  bottom: 0;
-  height: 100%;
-}
-
-.card {
-
-  display: flex;
-  padding: 1.2rem 1.5rem;
-  margin: 0.7rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  border: none;
-  background-color: white;
-
-}
-
-.hidden {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  max-height: 0;
-  visibility: hidden;
-  transition: all 0.3s ease-out;
-  opacity: 0;
-}
-
-.visible {
-  overflow: hidden;
-  max-height: 100rem;
-  opacity: 1;
-  transition: all 0.3s ease-in;
-}
-
-.right-0 {
-  right: 0;
-}
-
-.chart-title {
-  display: flex;
-  justify-content: center;
-  /*font-weight: bold;*/
-  margin-bottom: 1rem;
-}
-
-.vr {
-  display: inline;
-  height: 50%;
-  width: 1px;
-  border: 1px solid #c5c5c5;
-  margin: auto 0;
-}
-
-.card-title {
-  margin-right: 0.3rem;
-  font-size: 12pt;
-  color: #aaa;
-}
-
-.btn-primary {
-  background-color: #c231a3 !important;
-  border: 1px solid #ccc !important;
-  box-shadow: none !important;
-}
-
-.btn-primary:hover {
-  box-shadow: 0 1px 10px rgba(255, 255, 255, 0.5) !important;
-  border: 1px solid #fff !important;
-}
-
-.charts {
-  flex: 1 !important;
-}
-
-.subscriptions-chart-container {
-  min-width: 680px;
-}
-
-.network-chart-container,
-.audit-chart-container {
-  min-width: 280px;
-}
-
-.chart-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center !important;
-  height: 100%;
-}
-
-.projects-chart {
-  margin-right: -7rem !important;
-}
-
-.audit-gauges {
-  flex: 1;
-}
-
-.network-performance-chart-container {
-  min-width: 760px;
-}
-
-@media only screen and (max-width: 1350px) {
-
-}
-
-@media only screen and (max-width: 1150px) {
-
-  .projects-chart {
-    margin-right: -3rem !important;
-  }
-
-  .charts-container {
-    flex-flow: wrap;
-    justify-content: center !important;
-  }
-
-  .chart-container {
-    margin-bottom: 2rem !important;
-  }
-
-  .charts .vr {
-    display: none;
-  }
-
-  .gauge-icon {
-    transform: scale(0.7);
-  }
-
-  .btn {
-    font-size: 10pt !important;
-  }
-
-  .card-title {
-    font-size: 10pt !important;
-  }
-
-  .gauge-value {
-    font-size: 20pt !important;
-  }
-
-  .main-title {
-    font-size: 16pt;
-  }
-
-}
-
-@media only screen and (max-width: 800px) {
-
-  .network-performance-chart-container {
-    min-width: 600px;
-  }
-
-
-  .powered-by {
-    font-size: 10pt;
-    margin-bottom: 0;
-  }
-
-  .powered-by img {
-    height: 1.1rem;
-  }
-
-  .gauge-value {
-    font-size: 14pt !important;
-  }
-
-  .card {
-    box-shadow: none !important;
-    border-top: 1px solid #ddd;
-    border-radius: 0;
-    margin: 0;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  .health-card {
-    border: none;
-  }
-
-  .main-container.px-3 {
-    padding: 0 !important;
-  }
-
-  body {
-
-    width: 100% !important;
-    background-color: white !important;
-  }
-
-  .main-title {
-    font-size: 14pt;
-  }
-
-  .title-buttons {
-    width: 100%;
-    justify-content: end;
-  }
-
-  .logo img {
-    padding: 0.1rem;
-    height: 2.5rem;
-    cursor: pointer;
-  }
-
-  .header {
-    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
-    padding: 0.8rem 0;
-    height: 8rem;
-    flex-flow: wrap;
-  }
-
-  .chart-title {
-    font-size: 10pt;
-  }
-
-  table {
-    font-size: 10pt;
-  }
-
-  .gauge-icon {
-    transform: scale(0.4);
-    margin-right: 2rem !important;
-    margin-top: -2.2rem;
-  }
-
-  .gauge-cards {
-    margin-top: 1rem;
-  }
-
-  .gauge-cards .vr {
-    display: block !important;
-  }
-
-  .chart {
-    margin: -1rem 0;
-    transform: scale(0.85);
-  }
-}
-
-@media only screen and (max-width: 750px) {
-  .chart {
-    margin: -1.5rem 0;
-    transform: scale(0.8);
-  }
-}
-
-@media only screen and (max-width: 700px) {
-  .chart {
-    margin: -2rem 0;
-    transform: scale(0.75);
-  }
-}
-
-@media only screen and (max-width: 650px) {
-  .chart {
-    margin: -2.5rem 0;
-    transform: scale(0.7);
-  }
-}
-
-@media only screen and (max-width: 600px) {
-
-  .subscriptions-chart-container,
-  .network-performance-chart-container {
-    min-width: 400px;
-  }
-
-  .network-chart-container,
-  .audit-chart-container {
-    min-width: 190px;
-  }
-
-  .chart {
-    margin: -3rem 0;
-    transform: scale(0.65);
-  }
-
-  .powered-by {
-    font-size: 9pt;
-    margin-bottom: 0;
-  }
-
-  .powered-by img {
-    height: 1rem;
-    margin-bottom: 0.1rem;
-  }
-
-  .card {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  .main-title {
-    font-size: 12pt;
-  }
-
-  .gauge-icon {
-    transform: scale(0.3);
-    margin-top: -2.3rem !important;
-  }
-
-  .card-title {
-    font-size: 8pt !important;
-  }
-
-  .chart-title {
-    font-size: 8pt;
-  }
-
-  table {
-    font-size: 8pt;
-  }
-
-  .gauge-cards .vr {
-    display: none !important;
-  }
-
-}
-
-@media only screen and (max-width: 500px) {
-  .chart {
-    margin: -3.5rem 0;
-    transform: scale(0.5);
-  }
-}
-
-</style>
