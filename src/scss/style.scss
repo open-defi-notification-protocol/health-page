@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700');
 
+
 .page {
   overflow: hidden;
 }
@@ -8,7 +9,58 @@ body {
   background-color: #f6f9fb !important;
   color: #333;
   font-size: 11pt;
-  font-family: 'Montserrat', Arial, serif
+  font-family: 'Montserrat', Arial, serif;
+
+  .light {
+    transition: all 0.3s;
+  }
+
+  .dark {
+
+    transition: all 0.3s;
+    background-color: #303030 !important;
+    color: #fdfdfd !important;
+
+    .header {
+      background: rgba(232, 78, 207, 1);
+      background: linear-gradient(90deg, rgb(66, 64, 154) 0%, rgb(26, 69, 122) 40%, rgb(122, 37, 108) 100%);
+    }
+
+    .card {
+      background-color: #111111 !important;
+
+      .card-description,
+      .gauge-value{
+        color: #fafafa !important;
+      }
+
+      table {
+        color: #fafafa !important;
+      }
+    }
+
+  }
+
+  .modeTest {
+    background-color: #929598;
+
+    .header {
+      background: rgb(231, 231, 231);
+      background: linear-gradient(90deg, #c3c6cb 0%, #929598 40%, #444648 100%);
+    }
+
+    &.dark {
+      .header {
+        background: rgb(101, 101, 101);
+        background: linear-gradient(90deg, #5b5b5b 0%, #252525 40%, #000000 100%);
+      }
+
+    }
+
+
+  }
+
+
 }
 
 .content {
@@ -38,7 +90,7 @@ body {
   color: #fff;
   font-size: 1.6rem;
   font-weight: 500;
-  background: rgb(111, 109, 255);
+  background: rgba(232, 78, 207, 1);
   background: linear-gradient(90deg, rgba(111, 109, 255, 1) 0%, rgba(49, 131, 232, 1) 40%, rgba(232, 78, 207, 1) 100%);
   align-items: center;
   border-radius: 1rem;
@@ -76,9 +128,10 @@ body {
 }
 
 .loading {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.4);
   position: fixed;
   top: 0;
+  z-index: 20;
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -119,7 +172,7 @@ body {
   padding-bottom: 0 !important;
   max-height: 0;
   visibility: hidden;
-  transition: all 0.3s ease-out;
+  transition: all 0.3s;
   opacity: 0;
 }
 
@@ -127,7 +180,7 @@ body {
   overflow: hidden;
   max-height: 100rem;
   opacity: 1;
-  transition: all 0.3s ease-in;
+  transition: all 0.3s;
 }
 
 .right-0 {
