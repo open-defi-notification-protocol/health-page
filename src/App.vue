@@ -1,6 +1,6 @@
 <template>
 
-  <div :class="!modeProduction ? 'modeTest' : ''" class="page">
+  <div :class="(!modeProduction ? 'modeTest' : '') + ' ' + (darkMode ? 'dark' : 'light')" class="page">
 
     <div class="header px-3 justify-content-between">
 
@@ -28,11 +28,16 @@
                   {{ expertMode ? 'Expert Mode' : 'Simple Mode' }}
                 </button>-->
 
-        <button @click="toggleEnv" class="mx-2 btn btn-primary">
-          {{ modeProduction ? 'Production Env' : 'Development Env' }}
+        <!--        <button @click="toggleEnv" class="mx-2 btn btn-primary">
+                  {{ modeProduction ? 'Production Env' : 'Development Env' }}
+                </button>-->
+
+        <button @click="toggleTheme" class="mx-2 btn btn-primary">
+          <font-awesome-icon v-if="!darkMode" icon="fa-solid fa-moon"/>
+          <font-awesome-icon v-else icon="fa-solid fa-sun"/>
         </button>
 
-        <button @click=" loaderFunction(true)" class="mx-2 btn btn-primary">
+        <button @click="loaderFunction(true)" class="mx-2 btn btn-primary">
           <font-awesome-icon icon="fa-solid fa-rotate"/>
         </button>
 
@@ -662,10 +667,12 @@ import {library} from '@fortawesome/fontawesome-svg-core'
 import {
   faCheck,
   faDatabase,
+  faMoon,
   faNetworkWired,
   faRemove,
   faRotate,
   faServer,
+  faSun,
   faWarning
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -677,6 +684,8 @@ library.add(faCheck)
 library.add(faRemove)
 library.add(faWarning)
 library.add(faRotate)
+library.add(faMoon)
+library.add(faSun)
 library.add(faServer)
 library.add(faDatabase)
 library.add(faNetworkWired)
@@ -738,11 +747,16 @@ export default {
       l3Error: null,
       modeProduction: true,
       expertMode: true,
+      darkMode: false,
       isLoading: true
     }
   },
 
   async mounted() {
+
+    if (this.getUrlParams('test')) {
+      this.modeProduction = false
+    }
 
     const prodFB = initializeApp(
         {
@@ -910,6 +924,10 @@ export default {
   },
   methods: {
 
+    getUrlParams(name) {
+      const query = new URLSearchParams(window.location.search)
+      return query.get(name)
+    },
     refreshNetworksChartDataSet() {
 
       const loops = this.detectorHealth.loops
@@ -1034,6 +1052,9 @@ export default {
 
       })
 
+    },
+    toggleTheme() {
+      this.darkMode = !this.darkMode
     },
     async loaderFunction(useLoadingMask) {
 
