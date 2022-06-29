@@ -20,6 +20,14 @@ body {
     background-color: #303030 !important;
     color: #fdfdfd !important;
 
+
+    .network-activity-graph {
+
+      .block-indicator {
+        opacity: 0.9;
+      }
+    }
+
     .header {
       background: rgba(232, 78, 207, 1);
       background: linear-gradient(90deg, rgb(66, 64, 154) 0%, rgb(26, 69, 122) 40%, rgb(122, 37, 108) 100%);
@@ -169,6 +177,7 @@ html:not([data-scroll='0']) .header {
   }
 
   .block-indicator {
+    opacity: 0.8;
     min-height: 1rem;
     min-width: 1rem;
     margin: 0.2rem;
