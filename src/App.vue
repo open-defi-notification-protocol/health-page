@@ -16,7 +16,8 @@
         <div class="main-title mx-4 d-flex flex-column">
           <span>Open DeFi Notifications</span>
           <span class="powered-by">
-          Powered by <img src="https://defi.org/notifications/assets/images/orbs-logo-3.svg">
+          Powered by <img src="https://defi.org/notifications/assets/images/orbs-logo-3.svg"
+                          onclick="window.open('https://orbs.com')">
             </span>
         </div>
 
@@ -24,9 +25,9 @@
 
       <div class=" title-buttons d-flex">
 
-        <!--        <button @click="toggleMode" class="mx-2 btn btn-primary">
-                  {{ expertMode ? 'Expert Mode' : 'Simple Mode' }}
-                </button>-->
+        <!--                <button @click="toggleMode" class="mx-2 btn btn-primary">
+                          {{ expertMode ? 'Expert Mode' : 'Simple Mode' }}
+                        </button>-->
 
         <!--        <button @click="toggleEnv" class="mx-2 btn btn-primary">
                   {{ modeProduction ? 'Production Env' : 'Development Env' }}
@@ -82,6 +83,38 @@
           <gauge-card class="w-auto"
                       :value="failedAudits"
                       title="Failed Audits"/>
+
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <div class="  pb-2 card-title">Network Activity</div>
+
+        <div class="d-flex network-activity-graph">
+
+          <div class="d-flex flex-column" style="margin-top: -0.2rem">
+
+            <div v-for="key in Object.keys(web3Networks)" :key="key" class="d-flex network-activity-title">
+
+              {{ key.charAt(0).toUpperCase() + key.slice(1) }}
+
+            </div>
+
+          </div>
+
+          <div class="d-flex flex-column" id="network_activity_container">
+
+            <div v-for="key in Object.keys(web3Networks)" :key="key" class="d-flex"
+                 :class="key">
+
+              <div class="block-indicator current-block"
+                   :style="`background-color: ${networksColors[key]};`"></div>
+
+            </div>
+
+          </div>
 
         </div>
 
@@ -186,6 +219,318 @@
 
       </div>
 
+      <!-- Loop Status -->
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
+
+        <div class="  pb-2 card-title">Loops Status</div>
+        <div class="table-responsive">
+
+          <table class="  common-table table  table-hover " style=""
+                 v-if="detectorHealth.loops">
+            <thead>
+            <tr>
+              <th>
+                Loop
+              </th>
+              <th>
+                State
+              </th>
+              <th>
+                Error count
+              </th>
+              <th>
+                Block Time
+              </th>
+              <th>
+                Last Completed
+              </th>
+              <th>
+                Execution Count
+              </th>
+              <th>
+                Recent Subscriptions
+              </th>
+              <th>
+                Elapsed (ms)
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="key in Object.keys(detectorHealth.loops)" :key="key">
+
+              <th>
+                {{ key.charAt(0).toUpperCase() + key.slice(1) }}
+              </th>
+              <td>
+                {{ detectorHealth.loops[key].started === 'idle' ? 'Idle' : 'Running...' }}
+              </td>
+              <td
+                  :class="getColorClass(detectorHealth.loops[key].errors, detectorHealth.loopErrorsThreshold)">
+                {{ detectorHealth.loops[key].errors }}
+              </td>
+              <td>
+                {{ networkBlockTimes[key] }}
+              </td>
+              <td>
+                {{ new Date(detectorHealth.loops[key].lastCompleted).toLocaleString() }}
+              </td>
+              <td>
+                {{ detectorHealth.loops[key].count }}
+              </td>
+              <td>
+                {{
+                  detectorHealth.loops[key].clipboard.subscriptions && Object.keys(detectorHealth.loops[key].clipboard.subscriptions).length
+                }}
+              </td>
+              <td
+                  :class="getColorClass(detectorHealth.loops[key].elapsedTimeMillis, detectorHealth.loopSlowThresholdMillis )">
+                {{ detectorHealth.loops[key].elapsedTimeMillis }}
+              </td>
+
+            </tr>
+
+            <tr>
+
+              <th>
+                <b>Total</b>
+              </th>
+              <td style="">
+              </td>
+              <td>
+                <b>{{ totalErrors }}</b>
+              </td>
+              <td>
+              </td>
+              <td>
+              </td>
+              <td>
+                <b>{{ totalSubscriptions }}</b>
+              </td>
+              <td>
+              </td>
+
+            </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      <!-- Global Parameters-->
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
+
+        <div class=" pb-2 card-title">Global Parameters</div>
+
+        <div class="table-responsive">
+          <table class="  common-table table  table-hover " style=""
+                 v-if="detectorHealth.networks">
+            <thead>
+            <tr>
+              <th>
+                Slow Threshold
+              </th>
+              <th>
+                Stuck Threshold
+              </th>
+              <th>
+                Unsuccessful Threshold
+              </th>
+              <th>
+                Errors Threshold
+              </th>
+              <th>
+                Subscription Change Detection
+              </th>
+              <th>
+                onBlocks execution Timeout (ms)
+              </th>
+              <th>
+                Get Block Timeout (ms)
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+
+              <td>
+                {{ [detectorHealth.loopSlowThresholdMillis, 'milliseconds'] | duration('humanize') }}
+              </td>
+              <td>
+                {{ [detectorHealth.loopStuckThresholdMillis, 'milliseconds'] | duration('humanize') }}
+              </td>
+              <td>
+                {{ [detectorHealth.loopUnsuccessfulThresholdMillis, 'milliseconds'] | duration('humanize') }}
+              </td>
+              <td>
+                {{ detectorHealth.loopErrorsThreshold }}
+              </td>
+              <td>
+                {{ [detectorHealth.subscriptionModificationGraceMillis, 'milliseconds'] | duration('humanize') }}
+              </td>
+              <td>
+                {{ detectorHealth.onBlocksRequestTimeout }}
+              </td>
+              <td>
+                {{ detectorHealth.getBlockRequestTimeout }}
+              </td>
+
+            </tr>
+
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Network Parameters -->
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
+
+        <div class="pb-2 card-title">Network Parameters</div>
+
+        <div class="table-responsive">
+          <table class="  common-table table  table-hover " style=""
+                 v-if="detectorHealth.networks">
+            <thead>
+            <tr>
+              <th>
+                Network
+              </th>
+              <th>
+                Loop Interval (ms)
+              </th>
+              <th>
+                Init Block Range Size
+              </th>
+              <th>
+                Executor Async Size
+              </th>
+              <th>
+                Batch Throttling
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="network in Object.values(detectorHealth.networks)" :key="network.id">
+
+              <th>
+                {{ network.id.charAt(0).toUpperCase() + network.id.slice(1) }}
+              </th>
+              <td>
+                {{ network.loopIntervalMillis }}
+              </td>
+              <td>
+                {{ network.initBlockRangeSize }}
+              </td>
+              <td>
+                {{ network.executor_asyncSize }}
+              </td>
+              <td>
+                {{ network.executor_MinBatchProcessTime }}
+              </td>
+
+            </tr>
+
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Audit -->
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
+        <div class=" pb-2 card-title">Audit</div>
+        <div class="table-responsive">
+          <table class="  common-table table  table-hover " style="" v-if="auditResults">
+            <thead>
+            <tr>
+              <th>
+                % Audited
+              </th>
+              <th>
+                Passed
+              </th>
+              <th>
+                Failed
+              </th>
+              <th>
+                % Failed
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+
+              <td>
+                {{ auditedRequestsPercentage }}%
+              </td>
+              <td>
+                {{ succeededAudits }}
+              </td>
+              <td>
+                {{ failedAudits }}
+              </td>
+              <td>
+                {{ failedAuditsPercentage }}%
+              </td>
+
+            </tr>
+
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+
+      <!-- Project Statistics -->
+      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
+
+        <div class="  pb-2 card-title">Project Statistics</div>
+
+        <div class="table-responsive">
+
+          <table class=" common-table table  table-hover " v-if="projectsStatistics">
+            <thead>
+            <tr>
+              <th>
+                Project
+              </th>
+              <th>
+                Current Block
+              </th>
+              <th>
+                Recent Subscriptions
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="projectStatistics of projectsStatistics" :key="projectStatistics.projectId">
+
+              <th>
+                {{ projectStatistics.projectId }}
+              </th>
+              <td>
+                {{ projectStatistics.toBlock }}
+              </td>
+              <td>
+                {{ projectStatistics.subs.length }}
+              </td>
+
+            </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      <!-- Detector Health -->
       <div class="card pb-5" :class="expertMode ? 'visible' : 'hidden'">
 
         <div class="  pb-2 card-title">Detector Health</div>
@@ -217,6 +562,7 @@
 
       </div>
 
+      <!-- Infrastructure -->
       <div class="card" :class="expertMode ? 'visible' : 'hidden'">
         <div class="  pb-2 card-title">Infrastructure</div>
         <div class="table-responsive">
@@ -294,6 +640,7 @@
         </div>
       </div>
 
+      <!-- Errors -->
       <div class="card" v-if="detectorHealth.errors.length > 0">
 
         <div class=" fw-bold">Errors</div>
@@ -333,299 +680,6 @@
 
       </div>
 
-      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
-
-        <div class="  pb-2 card-title">Loops Status</div>
-        <div class="table-responsive">
-          <table class="  common-table table  table-hover " style=""
-                 v-if="detectorHealth.loops">
-            <thead>
-            <tr>
-              <th>
-                Loop
-              </th>
-              <th>
-                State
-              </th>
-              <th>
-                Error count
-              </th>
-              <th>
-                Last Completed
-              </th>
-              <th>
-                Execution Count
-              </th>
-              <th>
-                Subscriptions
-              </th>
-              <th>
-                Elapsed (ms)
-              </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="key in Object.keys(detectorHealth.loops)" :key="key">
-
-              <th>
-                {{ key.charAt(0).toUpperCase() + key.slice(1) }}
-              </th>
-              <td style="">
-                {{ detectorHealth.loops[key].started === 'idle' ? 'Idle' : 'Running...' }}
-              </td>
-              <td style="text-align: right;"
-                  :class="getColorClass(detectorHealth.loops[key].errors, detectorHealth.loopErrorsThreshold)">
-                {{ detectorHealth.loops[key].errors }}
-              </td>
-              <td style="text-align: right;">
-                {{ new Date(detectorHealth.loops[key].lastCompleted).toLocaleString() }}
-              </td>
-              <td style="text-align: right;">
-                {{ detectorHealth.loops[key].count }}
-              </td>
-              <td style="text-align: right;">
-                {{
-                  detectorHealth.loops[key].clipboard.subscriptions && Object.keys(detectorHealth.loops[key].clipboard.subscriptions).length
-                }}
-              </td>
-              <td style="text-align: right;"
-                  :class="getColorClass(detectorHealth.loops[key].elapsedTimeMillis, detectorHealth.loopSlowThresholdMillis )">
-                {{ detectorHealth.loops[key].elapsedTimeMillis }}
-              </td>
-
-            </tr>
-
-            <tr>
-
-              <th>
-                <b>Total</b>
-              </th>
-              <td style="">
-              </td>
-              <td style="text-align: right;">
-                <b>{{ totalErrors }}</b>
-              </td>
-              <td style="text-align: right;">
-              </td>
-              <td style="text-align: right;">
-              </td>
-              <td style="text-align: right;">
-                <b>{{ totalSubscriptions }}</b>
-              </td>
-              <td>
-              </td>
-
-            </tr>
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
-
-        <div class=" pb-2 card-title">Global Parameters</div>
-
-        <div class="table-responsive">
-          <table class="  common-table table  table-hover " style=""
-                 v-if="detectorHealth.networks">
-            <thead>
-            <tr>
-              <th>
-                Slow Threshold
-              </th>
-              <th>
-                Stuck Threshold
-              </th>
-              <th>
-                Unsuccessful Threshold
-              </th>
-              <th>
-                Errors Threshold
-              </th>
-              <th>
-                Subscription Change Detection
-              </th>
-              <th>
-                onBlocks execution Timeout (ms)
-              </th>
-              <th>
-                Get Block Timeout (ms)
-              </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-
-              <td style="text-align: right;">
-                {{ [detectorHealth.loopSlowThresholdMillis, 'milliseconds'] | duration('humanize') }}
-              </td>
-              <td style="text-align: right;">
-                {{ [detectorHealth.loopStuckThresholdMillis, 'milliseconds'] | duration('humanize') }}
-              </td>
-              <td style="text-align: right;">
-                {{ [detectorHealth.loopUnsuccessfulThresholdMillis, 'milliseconds'] | duration('humanize') }}
-              </td>
-              <td style="text-align: right;">
-                {{ detectorHealth.loopErrorsThreshold }}
-              </td>
-              <td style="text-align: right;">
-                {{ [detectorHealth.subscriptionModificationGraceMillis, 'milliseconds'] | duration('humanize') }}
-              </td>
-              <td style="text-align: right;">
-                {{ detectorHealth.onBlocksRequestTimeout }}
-              </td>
-              <td style="text-align: right;">
-                {{ detectorHealth.getBlockRequestTimeout }}
-              </td>
-
-            </tr>
-
-            </tbody>
-
-          </table>
-        </div>
-
-      </div>
-
-      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
-
-        <div class="pb-2 card-title">Network Parameters</div>
-
-        <div class="table-responsive">
-          <table class="  common-table table  table-hover " style=""
-                 v-if="detectorHealth.networks">
-            <thead>
-            <tr>
-              <th>
-                Network
-              </th>
-              <th>
-                Loop Interval (ms)
-              </th>
-              <th>
-                Init Block Range Size
-              </th>
-              <th>
-                Executor Async Size
-              </th>
-              <th>
-                Batch Throttling
-              </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="network in Object.values(detectorHealth.networks)" :key="network.id">
-
-              <th>
-                {{ network.id.charAt(0).toUpperCase() + network.id.slice(1) }}
-              </th>
-              <td style="text-align: right;">
-                {{ network.loopIntervalMillis }}
-              </td>
-              <td style="text-align: right;">
-                {{ network.initBlockRangeSize }}
-              </td>
-              <td style="text-align: right;">
-                {{ network.executor_asyncSize }}
-              </td>
-              <td style="text-align: right;">
-                {{ network.executor_MinBatchProcessTime }}
-              </td>
-
-            </tr>
-
-            </tbody>
-
-          </table>
-        </div>
-
-      </div>
-
-      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
-        <div class=" pb-2 card-title">Audit</div>
-        <div class="table-responsive">
-          <table class="  common-table table  table-hover " style="" v-if="auditResults">
-            <thead>
-            <tr>
-              <th>
-                % Audited
-              </th>
-              <th>
-                Passed
-              </th>
-              <th>
-                Failed
-              </th>
-              <th>
-                % Failed
-              </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-
-              <td style="text-align: right;">
-                {{ auditedRequestsPercentage }}%
-              </td>
-              <td style="text-align: right;">
-                {{ succeededAudits }}
-              </td>
-              <td style="text-align: right;">
-                {{ failedAudits }}
-              </td>
-              <td style="text-align: right;">
-                {{ failedAuditsPercentage }}%
-              </td>
-
-            </tr>
-
-            </tbody>
-
-          </table>
-        </div>
-      </div>
-
-      <div class="card" :class="expertMode ? 'visible' : 'hidden'">
-
-        <div class="  pb-2 card-title">Project Statistics</div>
-
-        <div class="table-responsive">
-
-          <table class=" common-table table  table-hover " v-if="projectsStatistics">
-            <thead>
-            <tr>
-              <th>
-                Project
-              </th>
-              <th>
-                Subscription Count
-              </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="projectStatistics of projectsStatistics" :key="projectStatistics.projectId">
-
-              <th>
-                {{ projectStatistics.projectId }}
-              </th>
-              <td style="text-align: right;">
-                {{ projectStatistics.subs.length }}
-              </td>
-
-            </tr>
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
       <br/>
 
     </div>
@@ -662,6 +716,8 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 
 /* import the fontawesome core */
 import {library} from '@fortawesome/fontawesome-svg-core'
+
+import $ from 'jquery'
 
 /* import specific icons */
 import {
@@ -734,6 +790,14 @@ export default {
       },
       networksPerformanceChartDataSet: null,
       networksChartDataSet: null,
+      networksColors: {
+        'ethereum': '#5971e3',
+        'bsc': '#f8c62c',
+        'polygon': '#743ad6',
+        'avalanche': '#e53d3f',
+        'fantom': '#13aae6',
+        'cronos': '#092b49'
+      },
       projectsChartDataSet: null,
       auditChartDataSet: null,
       detectorHealth: null,
@@ -748,11 +812,19 @@ export default {
       modeProduction: true,
       expertMode: true,
       darkMode: false,
+      blockTimeTasks: null,
+      networkBlockTimes: null,
       isLoading: true
     }
   },
 
   async mounted() {
+
+    document.documentElement.dataset.scroll = window.scrollY;
+
+    document.addEventListener('scroll', () => {
+      document.documentElement.dataset.scroll = window.scrollY;
+    });
 
     if (this.getUrlParams('test')) {
       this.modeProduction = false
@@ -859,6 +931,7 @@ export default {
 
               subscriptionsByProjects[sub.projectId] = subscriptionsByProject = subscriptionsByProject || {
                 projectId: sub.projectId,
+                toBlock: sub.toBlock,
                 subs: []
               }
 
@@ -919,11 +992,58 @@ export default {
 
       return totalErrors
 
+    },
+    web3Networks() {
+
+      const loops = this.detectorHealth.loops
+      const _web3Networks = {}
+
+      for (const key in loops) {
+
+        if (key !== 'http' && loops[key].clipboard.subscriptions) {
+          _web3Networks[key] = loops[key]
+        }
+
+      }
+
+      return _web3Networks
+
     }
 
   },
   methods: {
 
+    calculateNetworkBlockTimes() {
+
+      this.networkBlockTimes = {}
+
+      const loops = this.detectorHealth.loops
+
+      if (loops) {
+
+        for (const key in loops) {
+
+          if (key !== 'http') {
+
+            const subscriptions = loops[key].clipboard.subscriptions
+
+            if (subscriptions) {
+
+              for (const sub of Object.values(subscriptions)) {
+
+                const prevToBlock = sub.fromBlock - 1
+
+                this.networkBlockTimes[key] = 1 / ((sub.toBlock - prevToBlock) / (loops[key].intervalMillis / 1000))
+
+              }
+
+            }
+          }
+        }
+
+      }
+
+    },
     getUrlParams(name) {
       const query = new URLSearchParams(window.location.search)
       return query.get(name)
@@ -943,7 +1063,22 @@ export default {
       }
 
       const networkSubCount = loopsNames.map(key => loops[key].clipboard.subscriptions && Object.keys(loops[key].clipboard.subscriptions).length)
-      const colors = loopsNames.map(() => randomColor())
+
+      const colors = []
+
+      for (const network of loopsNames) {
+
+        let color = this.networksColors[network]
+
+        if (!color) {
+          color = randomColor()
+          this.networksColors[network] = color
+        }
+
+        colors.push(color)
+
+      }
+
 
       this.networksChartDataSet = {
         labels: loopsNames,
@@ -974,6 +1109,9 @@ export default {
 
       })
 
+    },
+    randomInteger(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
     },
     refreshProjectsChartDataSet() {
 
@@ -1069,6 +1207,35 @@ export default {
         })
 
         this.detectorHealth = (await (response.json()))
+
+        this.calculateNetworkBlockTimes()
+
+        if (!this.blockTimeTasks) {
+
+          this.blockTimeTasks = []
+
+          for (const key in this.detectorHealth.loops) {
+
+            if (this.networkBlockTimes[key] > 0) {
+
+              this.blockTimeTasks.push(window.setInterval(() => {
+
+                const $blockIndicatorRow = $('#network_activity_container').find('.' + key)
+
+                $blockIndicatorRow.find('.block-indicator').removeClass('current-block')
+
+                const clone = `<div class="block-indicator current-block" \
+                          style="background-color: ${this.networksColors[key]}; filter: brightness(${this.randomInteger(8, 10) / 10})"></div>`
+
+                $blockIndicatorRow.prepend(clone)
+
+              }, this.networkBlockTimes[key] * 1000))
+
+            }
+
+          }
+
+        }
 
         this.detectorError = null
 
