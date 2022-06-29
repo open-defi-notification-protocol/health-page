@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700');
 
-
 .page {
   overflow: hidden;
 }
@@ -26,11 +25,16 @@ body {
       background: linear-gradient(90deg, rgb(66, 64, 154) 0%, rgb(26, 69, 122) 40%, rgb(122, 37, 108) 100%);
     }
 
+    .btn-primary {
+      border: 1px solid #aaa !important;
+      color: #eee;
+    }
+
     .card {
       background-color: #111111 !important;
 
       .card-description,
-      .gauge-value{
+      .gauge-value {
         color: #fafafa !important;
       }
 
@@ -95,12 +99,18 @@ body {
   align-items: center;
   border-radius: 1rem;
   margin: 1.6rem;
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
 
   .powered-by {
     font-weight: normal;
   }
 
+}
+
+html:not([data-scroll='0']) .header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transform: scale(1.005);
 }
 
 .logo {
@@ -112,6 +122,11 @@ body {
     height: 4rem;
     border-radius: 100em;
     background-color: transparent;
+    transition: all 0.2s;
+
+    &:hover {
+      box-shadow: 0 1px 5px rgba(255, 255, 255, 0.3);
+    }
   }
 
 }
@@ -121,10 +136,44 @@ body {
   margin-bottom: 0.4rem;
 
   img {
+    cursor: pointer;
     filter: brightness(100);
     height: 1.3rem;
     margin-left: 0.3rem;
+    transition: all 0.2s;
+
+    &:hover {
+      filter: brightness(100) drop-shadow(0 1px 5px rgba(255, 255, 255, 0.6));
+    }
   }
+}
+
+.current-block {
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.network-activity-graph {
+
+  overflow: hidden;
+
+  .network-activity-title {
+    height: 1rem;
+    font-size: 0.85rem;
+    margin: 0.2rem 1rem 0.2rem 0;
+  }
+
+  .block-indicator {
+    min-height: 1rem;
+    min-width: 1rem;
+    margin: 0.2rem;
+  }
+
 }
 
 .loading {
@@ -215,7 +264,7 @@ body {
   background-color: transparent !important;
   border: 1px solid #fff !important;
   box-shadow: none !important;
-  padding: 0.7rem 1rem;
+  padding: 0.8rem 0.9rem 0.7rem 1rem;
   font-size: 0.9rem;
   cursor: pointer;
 
@@ -260,10 +309,6 @@ body {
 
 .gauge-icon {
   margin-right: 1rem;
-
-  img {
-
-  }
 }
 
 .gauge-card {
@@ -271,6 +316,11 @@ body {
   min-width: 10rem;
   height: 7rem;
   flex: 0.5;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: scale(1.05);
+  }
 
   .card-title {
     font-size: 0.9rem;
@@ -331,6 +381,7 @@ body {
       background: rgb(111, 109, 255);
       background: linear-gradient(45deg, rgba(111, 109, 255, 1) 0%, rgba(49, 131, 232, 1) 30%, rgba(232, 78, 207, 1) 100%);
       border-radius: 10rem;
+      cursor: pointer;
     }
 
   }
