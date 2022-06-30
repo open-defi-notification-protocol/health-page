@@ -239,7 +239,7 @@
                 Error count
               </th>
               <th>
-                Block Time
+                Block Time (s)
               </th>
               <th>
                 Last Completed
@@ -269,7 +269,7 @@
                 {{ detectorHealth.loops[key].errors }}
               </td>
               <td>
-                {{ networkBlockTimes[key] }}
+                {{ networkBlockTimes[key] && numberFormatter.format(networkBlockTimes[key]) }}
               </td>
               <td>
                 {{ new Date(detectorHealth.loops[key].lastCompleted).toLocaleString() }}
@@ -870,6 +870,9 @@ export default {
   },
   computed: {
 
+    numberFormatter() {
+      return numberFormatter
+    },
     auditedRequestsPercentage() {
 
       return Math.round((1 / this.detectorHealth.auditEveryProb_1_in_x) * 100)
@@ -1000,7 +1003,9 @@ export default {
 
       for (const key in loops) {
 
-        if (key !== 'http' && loops[key].clipboard.subscriptions) {
+        const subscriptions = loops[key].clipboard.subscriptions
+
+        if (key !== 'http' && subscriptions && Object.values(subscriptions).length > 0) {
           _web3Networks[key] = loops[key]
         }
 
