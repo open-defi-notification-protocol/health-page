@@ -1222,7 +1222,9 @@ export default {
 
           for (const key in this.detectorHealth.loops) {
 
-            if (this.networkBlockTimes[key] > 0) {
+            const networkBlockTime = this.networkBlockTimes[key]
+
+            if (networkBlockTime > 0.2) {
 
               this.blockTimeTasks.push(window.setInterval(() => {
 
@@ -1235,7 +1237,7 @@ export default {
 
                 $blockIndicatorRow.prepend(clone)
 
-              }, this.networkBlockTimes[key] * 1000))
+              }, networkBlockTime * 1000))
 
             }
 
