@@ -90,7 +90,7 @@
 
       <div class="card">
 
-        <div class="  pb-2 card-title">Network Activity</div>
+        <div class="  pb-2 card-title">Detector Activity</div>
 
         <div class="d-flex network-activity-graph">
 
@@ -796,7 +796,8 @@ export default {
         'polygon': '#743ad6',
         'avalanche': '#e53d3f',
         'fantom': '#13aae6',
-        'cronos': '#092b49'
+        'cronos': '#092b49',
+        'http': '#6ed54d'
       },
       projectsChartDataSet: null,
       auditChartDataSet: null,
@@ -1179,7 +1180,7 @@ export default {
 
       let ratio = value / threshold
 
-      return ratio >= 1 ? 'text-danger' : (ratio < 0.2 ? 'text-success' : 'text-warning')
+      return ratio >= 1 ? 'text-danger' : (ratio < 0.7 ? 'text-success' : 'text-warning')
 
     },
     toggleMode() {
@@ -1230,7 +1231,7 @@ export default {
                 $blockIndicatorRow.find('.block-indicator').removeClass('current-block')
 
                 const clone = `<div class="block-indicator current-block" \
-                          style="background-color: ${this.networksColors[key]}; filter: brightness(${this.randomInteger(8, 10) / 10})"></div>`
+                          style="background-color: ${this.networksColors[key]}; filter: brightness(${this.randomInteger(80, 100) / 100})"></div>`
 
                 $blockIndicatorRow.prepend(clone)
 
