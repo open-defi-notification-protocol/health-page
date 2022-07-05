@@ -449,6 +449,12 @@
             <thead>
             <tr>
               <th>
+                Audited By
+              </th>
+              <th>
+                Audited
+              </th>
+              <th>
                 % Audited
               </th>
               <th>
@@ -457,25 +463,25 @@
               <th>
                 Failed
               </th>
-              <th>
-                % Failed
-              </th>
             </tr>
             </thead>
             <tbody>
-            <tr>
+            <tr v-for="nodeAddress in  Object.keys(auditResultsPerNode)" :key="nodeAddress">
 
               <td>
-                {{ auditedRequestsPercentage }}%
+                {{ nodeAddress }}
               </td>
               <td>
-                {{ succeededAudits }}
+                {{ auditResultsPerNode[nodeAddress].audited }}
               </td>
               <td>
-                {{ failedAudits }}
+                {{ numberFormatter.format(auditResultsPerNode[nodeAddress].auditedPercentage * 100) }}%
               </td>
               <td>
-                {{ failedAuditsPercentage }}%
+                {{ auditResultsPerNode[nodeAddress].succeededAudits }}
+              </td>
+              <td>
+                {{ auditResultsPerNode[nodeAddress].failedAudits }}
               </td>
 
             </tr>
@@ -483,6 +489,10 @@
             </tbody>
 
           </table>
+          <div class="d-flex justify-content-center align-items-center" v-else>
+            <img height="40" width="40"
+                 src="https://media3.giphy.com/media/L05HgB2h6qICDs5Sms/giphy.gif?cid=ecf05e478m15g7rgia18ipg9menvhnn4ahik4vcjd5zzr33r&rid=giphy.gif&ct=s"/>
+          </div>
         </div>
       </div>
 
@@ -877,6 +887,47 @@ export default {
     auditedRequestsPercentage() {
 
       return Math.round((1 / this.detectorHealth.auditEveryProb_1_in_x) * 100)
+
+    },
+    auditResultsPerNode() {
+
+      const _auditResultsPerNode = {}
+
+      for (const auditResult of this.auditResults) {
+
+        if (!auditResult.nodeEthAddress) {
+          continue
+        }
+
+        let _auditResultPerNode = _auditResultsPerNode[auditResult.nodeEthAddress]
+
+        if (!_auditResultPerNode) {
+          _auditResultPerNode = _auditResultsPerNode[auditResult.nodeEthAddress] = {}
+          _auditResultPerNode.succeededAudits = 0
+          _auditResultPerNode.failedAudits = 0
+          _auditResultPerNode.audited = 0
+
+        }
+
+        if (auditResult.auditPassed) {
+          _auditResultPerNode.succeededAudits++
+        } else {
+          _auditResultPerNode.failedAudits++
+        }
+
+        _auditResultPerNode.audited++
+
+      }
+
+      for (const nodeAddress in _auditResultsPerNode) {
+
+        const _auditResultPerNode = _auditResultsPerNode[nodeAddress];
+
+        _auditResultPerNode.auditedPercentage = _auditResultPerNode.audited / this.auditResults.length
+
+      }
+
+      return _auditResultsPerNode
 
     },
     succeededAudits() {
