@@ -54,6 +54,8 @@
 
           <health-card
               :health="detectorHealth"
+              :statusFieldName="'status'"
+              :okString="'OK'"
               :expertMode="expertMode"
               :icon="`${publicPath}img/detector.png`"
               title="Detector"
@@ -62,6 +64,8 @@
 
           <health-card
               :health="managerHealth"
+              :statusFieldName="'status'"
+              :okString="'OK'"
               :expertMode="expertMode"
               :icon="`${publicPath}img/manager.png`"
               title="Manager"
@@ -70,6 +74,8 @@
 
           <health-card
               :health="l3Health"
+              :statusFieldName="'Status'"
+              :okString="'Status = OK,'"
               :expertMode="expertMode"
               :icon="`${publicPath}img/l3.png`"
               title="Orbs L3"
