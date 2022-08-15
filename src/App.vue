@@ -310,6 +310,8 @@
               <td>
               </td>
               <td>
+              </td>
+              <td>
                 <b>{{ totalSubscriptions }}</b>
               </td>
               <td>
