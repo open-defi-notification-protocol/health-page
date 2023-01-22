@@ -16,7 +16,7 @@
         <div class="main-title mx-4 d-flex flex-column">
           <span>Open DeFi Notifications</span>
           <span class="powered-by">
-          Powered by <img src="https://defi.org/notifications/assets/images/orbs-logo-3.svg"
+          Powered by <img src="https://www.orbs.com/assets/img/common/logo.svg"
                           onclick="window.open('https://orbs.com')">
             </span>
         </div>
@@ -459,6 +459,17 @@
               <th>
                 Audited By
               </th>
+
+              <th>
+                Up time (h)
+              </th>
+              <th>
+                Mem usage (mb)
+              </th>
+              <th>
+                Version
+              </th>
+
               <th>
                 Audited
               </th>
@@ -478,6 +489,17 @@
 
               <td>
                 {{ nodeAddress }}
+              </td>
+              <td>
+                {{ (auditResultsPerNode[nodeAddress].uptime / 60 / 60).toFixed(1) }}
+              </td>
+              <td>
+                {{ Math.round(auditResultsPerNode[nodeAddress].heapUsedMB) }}
+              </td>
+              <td>
+                {{
+                  auditResultsPerNode[nodeAddress].Payload && auditResultsPerNode[nodeAddress].Payload.Version.Semantic
+                }}
               </td>
               <td>
                 {{ auditResultsPerNode[nodeAddress].audited }}
@@ -833,6 +855,7 @@ export default {
       darkMode: false,
       blockTimeTasks: null,
       networkBlockTimes: null,
+      l3status: null,
       isLoading: true
     }
   },
@@ -883,7 +906,6 @@ export default {
     this.testAuditRef = ref(testFBDB, 'audit')
     this.prodAuditRef = ref(prodFBDB, 'audit')
 
-
     await this.loaderFunction()
 
   },
@@ -901,16 +923,30 @@ export default {
 
       const _auditResultsPerNode = {}
 
+      if (!this.l3status) {
+        return _auditResultsPerNode
+      }
+
+      let l3NodesStatus = Object.values(this.l3status.CommitteeNodes);
+
       for (const auditResult of this.auditResults) {
 
         if (!auditResult.nodeEthAddress) {
           continue
         }
 
+        const l3NodeStatus = l3NodesStatus.find(_l3NodeStatus => {
+
+          const twapService = _l3NodeStatus.NodeServices['vm-twap']
+
+          return twapService && twapService.VMStatusJson.nodeAddress && twapService.VMStatusJson.nodeAddress.toLowerCase() === auditResult.nodeEthAddress.toLowerCase()
+
+        })
+
         let _auditResultPerNode = _auditResultsPerNode[auditResult.nodeEthAddress]
 
         if (!_auditResultPerNode) {
-          _auditResultPerNode = _auditResultsPerNode[auditResult.nodeEthAddress] = {}
+          _auditResultPerNode = _auditResultsPerNode[auditResult.nodeEthAddress] = Object.assign({}, (l3NodeStatus && l3NodeStatus.NodeServices['vm-notifications'].VMStatusJson) || {})
           _auditResultPerNode.succeededAudits = 0
           _auditResultPerNode.failedAudits = 0
           _auditResultPerNode.audited = 0
@@ -1221,7 +1257,7 @@ export default {
 
         this.$nextTick(() => {
 
-          this.$refs.audit_chart.update()
+          this.$refs.audit_chart && this.$refs.audit_chart.update()
 
         })
 
@@ -1352,7 +1388,11 @@ export default {
 
       }
 
-      const auditResultsMap = (await get(this.auditRef)).val();
+      const l3statusUrl = 'https://status.orbs.network/json'
+
+      this.l3status = await (await fetch(l3statusUrl)).json()
+
+      const auditResultsMap = (await get(this.auditRef)).val()
 
       this.auditResults = auditResultsMap ? Object.values(auditResultsMap) : []
 
