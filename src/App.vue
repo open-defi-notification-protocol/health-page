@@ -1132,9 +1132,15 @@ export default {
 
               for (const sub of Object.values(subscriptions)) {
 
-                const prevToBlock = sub.fromBlock - 1
+                if (sub.fromBlock && sub.toBlock) {
 
-                this.networkBlockTimes[key] = 1 / ((sub.toBlock - prevToBlock) / (loops[key].intervalMillis / 1000))
+                  const prevToBlock = sub.fromBlock - 1
+
+                  this.networkBlockTimes[key] = 1 / ((sub.toBlock - prevToBlock) / (loops[key].intervalMillis / 1000))
+
+                  break
+
+                }
 
               }
 
