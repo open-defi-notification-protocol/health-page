@@ -1394,7 +1394,7 @@ export default {
 
       }
 
-      const l3statusUrl = 'https://status.orbs.network/json'
+      const l3statusUrl = 'https://status.orbs.network/json-full'
 
       this.l3status = await (await fetch(l3statusUrl)).json()
 
