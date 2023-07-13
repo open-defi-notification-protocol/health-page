@@ -837,6 +837,7 @@ export default {
         'avalanche': '#e53d3f',
         'fantom': '#13aae6',
         'cronos': '#092b49',
+        'optimism': '#ff0000',
         'http': '#6ed54d'
       },
       projectsChartDataSet: null,
